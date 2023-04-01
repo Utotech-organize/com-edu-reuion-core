@@ -1,19 +1,13 @@
 import { NextFunction, Request, Response } from "express";
-import { Lession } from "../entities/lession.entity";
-import { PretestResult } from "../entities/pretest-result.entity";
+import { Desk } from "../entities/desk.entity";
 import { User } from "../entities/user.entity";
 import { responseErrors } from "../utils/common";
 import { AppDataSource } from "../utils/data-source";
-import { DeleteFileInFolder, DeleteOurFiles } from "../utils/delete-files";
 import bcrypt from "bcryptjs";
 
 const userRepository = AppDataSource.getRepository(User);
-
-/* Getting the lession repository from the database. */
-const lessionRepository = AppDataSource.getRepository(Lession);
-
-/* Getting the lession repository from the database. */
-const pretestResultRepository = AppDataSource.getRepository(PretestResult);
+const deskRepository = AppDataSource.getRepository(Desk);
+// const pretestResultRepository = AppDataSource.getRepository(PretestResult);
 
 export const registerUserHandler = async (req: Request, res: Response) => {
   try {
@@ -23,13 +17,11 @@ export const registerUserHandler = async (req: Request, res: Response) => {
       userRepository.create({
         email: email.toLowerCase(),
         password,
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        class: req.body.class,
-        class_number: req.body.class_number,
+        name: req.body.name,
+        remark: req.body.remark,
+        tel: req.body.tel,
         role: req.body.role,
         photo_url: req.body.photo_url,
-        verified: false,
       })
     );
 
@@ -61,7 +53,6 @@ export const registerUserHandler = async (req: Request, res: Response) => {
 
 export const getAllUsersHandler = async (req: Request, res: Response) => {
   try {
-    // const users = await userRepository.createQueryBuilder("users").getMany();
     const users = await userRepository
       .createQueryBuilder("users")
       .select([
@@ -69,13 +60,11 @@ export const getAllUsersHandler = async (req: Request, res: Response) => {
         "users.created_at AS created_at",
         "users.updated_at AS updated_at",
         "users.email AS email",
+        "users.name AS name",
+        "users.remark AS remark",
+        "users.tel AS tel",
         "users.role AS role",
         "users.photo_url AS photo_url",
-        "users.firstname AS firstname",
-        "users.lastname AS lastname",
-        "users.class AS class",
-        "users.class_number AS class_number",
-        "users.verified AS verified",
       ])
       .getRawMany();
 
@@ -98,23 +87,21 @@ export const getUserHandler = async (req: Request, res: Response) => {
         "users.created_at AS created_at",
         "users.updated_at AS updated_at",
         "users.email AS email",
+        "users.name AS name",
+        "users.remark AS remark",
+        "users.tel AS tel",
         "users.role AS role",
         "users.photo_url AS photo_url",
-        "users.firstname AS firstname",
-        "users.lastname AS lastname",
-        "users.class AS class",
-        "users.class_number AS class_number",
-        "users.verified AS verified",
       ])
-      .where("users.id = :id", { id: req.params.postId })
+      .where("users.id = :id", { id: req.params.id })
       .getRawOne();
 
     if (!users) {
       return responseErrors(res, 400, "User not found");
     }
 
-    const lss = await getLessionByUser(+req.params.postId);
-    users["lessions"] = lss;
+    // const lss = await getLessionByUser(+req.params.postId);
+    // users["lessions"] = lss;
 
     res.status(200).json({
       status: "success",
@@ -136,24 +123,21 @@ export const updateUserHandler = async (
     const input = req.body;
 
     const users = await userRepository.findOneBy({
-      id: req.params.postId as any,
+      id: req.params.id as any,
     });
 
     if (!users) {
       return responseErrors(res, 400, "User not found");
     }
 
-    await DeleteFileInFolder(users.photo_url, input.photo_url, "images");
     users.photo_url = input.photo_url;
 
     users.email = input.email;
+    users.name = input.name;
+    users.remark = input.remark;
+    users.tel = input.tel;
     users.role = input.role;
     users.photo_url = input.photo_url;
-    users.firstname = input.firstname;
-    users.lastname = input.lastname;
-    users.class = input.class;
-    users.class_number = input.class_number;
-    users.verified = input.verified;
 
     if (input.password && input.password !== "") {
       users.password = await bcrypt.hash(input.password, 12);
@@ -181,15 +165,12 @@ export const deleteUserHandler = async (
 ) => {
   try {
     const users = await userRepository.findOneBy({
-      id: req.params.postId as any,
+      id: req.params.id as any,
     });
 
     if (!users) {
       return responseErrors(res, 400, "User not found");
     }
-
-    await DeleteFileInFolder(users.photo_url, users.photo_url, "images");
-    await users.remove();
 
     res.status(204).json({
       status: "success",
@@ -200,48 +181,48 @@ export const deleteUserHandler = async (
   }
 };
 
-export const approveUserHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const user = await userRepository.findOneBy({
-      id: req.params.userId,
-    } as any);
+// export const approveUserHandler = async ( //FIXME go to customer
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const user = await userRepository.findOneBy({
+//       id: req.params.userId,
+//     } as any);
 
-    if (!user) {
-      return responseErrors(res, 400, "User not found");
-    }
+//     if (!user) {
+//       return responseErrors(res, 400, "User not found");
+//     }
 
-    user.verified = true;
-    await user.save();
+//     user.verified = true;
+//     await user.save();
 
-    res.status(200).json({
-      status: "success",
-      message: "verified successfully",
-    });
-  } catch (err: any) {
-    return responseErrors(res, 400, "Can't delete your user");
-  }
-};
+//     res.status(200).json({
+//       status: "success",
+//       message: "verified successfully",
+//     });
+//   } catch (err: any) {
+//     return responseErrors(res, 400, "Can't delete your user");
+//   }
+// };
 
-async function getLessionByUser(userId: number) {
-  const lessions = await lessionRepository
-    .createQueryBuilder("lession")
-    .where("active IS TRUE")
-    .getMany();
+// async function getLessionByUser(userId: number) { //FIXME go to customer
+//   const lessions = await deskRepository
+//     .createQueryBuilder("lession")
+//     .where("active IS TRUE")
+//     .getMany();
 
-  let newLessions: Lession[] = [];
+//   let newLessions: Desk[] = [];
 
-  for (let l of lessions) {
-    const pretestUser = await pretestResultRepository
-      .createQueryBuilder("pretest_result")
-      .leftJoin("pretest_result.pretest", "pretest")
-      .leftJoin("pretest.lession", "lession")
-      .where("pretest_result.user_id = :id", { id: userId })
-      .getRawOne();
-  }
+//   for (let l of lessions) {
+//     const pretestUser = await pretestResultRepository
+//       .createQueryBuilder("pretest_result")
+//       .leftJoin("pretest_result.pretest", "pretest")
+//       .leftJoin("pretest.lession", "lession")
+//       .where("pretest_result.user_id = :id", { id: userId })
+//       .getRawOne();
+//   }
 
-  return newLessions;
-}
+//   return newLessions;
+// }

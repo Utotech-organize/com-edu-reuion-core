@@ -32,14 +32,6 @@ export const loginUserHandler = async (req: Request, res: Response) => {
       return responseErrors(res, 400, "Invalid email or password");
     }
 
-    if (!user.verified) {
-      return responseErrors(
-        res,
-        401,
-        "You are not verified, check your email to verify your account"
-      );
-    }
-
     if (!(await User.comparePasswords(password, user.password))) {
       return responseErrors(res, 400, "Invalid email or password");
     }
@@ -57,17 +49,10 @@ export const loginUserHandler = async (req: Request, res: Response) => {
   } catch (err: any) {}
 };
 
-const logout = (res: Response) => {
-  // res.cookie("access_token", "", { maxAge: 1 });
-  // res.cookie("refresh_token", "", { maxAge: 1 });
-  // res.cookie("logged_in", "", { maxAge: 1 });
-};
-
+//FIXME logout
 export const logoutHandler = async (req: Request, res: Response) => {
   try {
     const user = res.locals.user;
-
-    logout(res);
 
     res.status(200).json({
       status: "success",

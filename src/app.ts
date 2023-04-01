@@ -4,11 +4,10 @@ import config from "config";
 import morgan from "morgan";
 import cors from "cors";
 import { AppDataSource } from "./utils/data-source";
-import bookingRouter from "./routes/booking.routes";
+// import bookingRouter from "./routes/booking.routes";
 import authRouter from "./routes/auth.routes";
 import userRouter from "./routes/user.routes";
-import lessionRouter from "./routes/booking.routes";
-import uploadsRouter from "./routes/upload.routes";
+// import lessionRouter from "./routes/booking.routes";
 
 import validateEnv from "./utils/validateEnv";
 import { User } from "./entities/user.entity";
@@ -40,26 +39,23 @@ AppDataSource.initialize()
     const user = await userRepository.find();
 
     if (user.length === 0) {
-      console.log("Inserting a new user into the database...");
+      console.log("Inserting a new super admin into the database...");
       const user = new User();
-      user.email = "super_admin@cer.co";
-      user.password = process.env.POSTGRES_PASSWORD ?? "";
-      user.role = "admin";
-      user.firstname = "super";
-      user.lastname = "admin";
-      user.class = "admin";
-      user.class_number = "0";
-      user.verified = true;
+      user.email = process.env.SUPER_ADMIN_EMAIL ?? "";
+      user.password = process.env.SUPER_ADMIN_PASSWORD ?? "";
+      user.name = "super admin";
+      user.remark = "this is super admin for development";
+      user.tel = "-";
+      user.role = "super_admin";
 
       await AppDataSource.manager.save(user);
-      console.log("Saved a new user with id: " + user.id);
+      console.log("Init Super admin");
     }
 
     // ROUTES;
-    app.use("/api/bookings", bookingRouter);
+    // app.use("/api/bookings", bookingRouter);
     app.use("/api/users", userRouter);
     app.use("/api/auth", authRouter);
-    app.use("/api/upload", uploadsRouter);
 
     // HEALTH CHECKER
     app.get("/api/healthChecker", async (_, res: Response) => {

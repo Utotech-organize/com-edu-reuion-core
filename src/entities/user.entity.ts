@@ -1,10 +1,7 @@
 import { Entity, Column, Index, BeforeInsert, OneToMany } from "typeorm";
 import bcrypt from "bcryptjs";
 import Model from "./model.entity";
-import { PretestResult } from "./pretest-result.entity";
 
-/* It's a class that extends the Model class from typeorm, and it has a bunch of
-properties that are decorated with the @Column decorator */
 @Entity("users")
 export class User extends Model {
   @Index("email_index")
@@ -17,42 +14,32 @@ export class User extends Model {
   password!: string;
 
   @Column({
-    default: "user",
+    nullable: false,
+  })
+  name!: string; // fistname and lastname
+
+  @Column({
+    nullable: true,
+  })
+  remark!: string;
+
+  @Column({
+    nullable: false,
+  })
+  tel!: string;
+
+  @Column({
+    default: "admin",
     type: String,
     nullable: false,
   })
   role!: string;
 
   @Column({ nullable: true })
-  photo_url!: string;
+  photo_url!: string; //FIXME to base64 image
 
-  @Column({
-    default: false,
-  })
-  verified!: boolean;
-
-  @Column({
-    nullable: false,
-  })
-  firstname!: string;
-
-  @Column({
-    nullable: true,
-  })
-  lastname!: string;
-
-  @Column({
-    nullable: true,
-  })
-  class!: string;
-
-  @Column({
-    nullable: true,
-  })
-  class_number!: string;
-
-  @OneToMany(() => PretestResult, (preResult) => preResult.pretest)
-  pretestResults!: PretestResult[];
+  // @OneToMany(() => PretestResult, (preResult) => preResult.pretest) //FIXME relate with chair
+  // pretestResults!: PretestResult[];
 
   @BeforeInsert()
   async hashPassword() {

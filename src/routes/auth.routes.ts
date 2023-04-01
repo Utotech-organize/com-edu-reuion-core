@@ -5,13 +5,10 @@ import { verifyJwt } from "../utils/jwt";
 
 const router = express.Router();
 
-// Register user
-router.post("/register", registerUserHandler);
-
 // Login user
 router.post("/login", loginUserHandler);
 
-// Login user
+// get me user
 router.get("/me", verifyJwt, getMeHandler);
 
 export default router;

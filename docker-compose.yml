@@ -4,7 +4,7 @@ services:
     image: postgres:latest
     container_name: com-edu-reunion
     ports:
-      - "3001:5432"
+      - ${POSTGRES_PORT}:5432
     env_file:
       - ./.env
 
