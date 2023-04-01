@@ -1,11 +1,9 @@
-import { CookieOptions, NextFunction, Request, Response } from "express";
-import crypto from "crypto";
-
+import { Request, Response } from "express";
 import { signJwt } from "../utils/jwt";
 import { User } from "../entities/user.entity";
 import { AppDataSource } from "../utils/data-source";
-import { any } from "zod";
 import { responseErrors } from "../utils/common";
+
 const userRepository = AppDataSource.getRepository(User);
 
 export const getMeHandler = async (req: Request, res: Response) => {

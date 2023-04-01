@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { Desk } from "../entities/desk.entity";
 import { User } from "../entities/user.entity";
 import { responseErrors } from "../utils/common";
@@ -12,16 +12,17 @@ const deskRepository = AppDataSource.getRepository(Desk);
 export const registerUserHandler = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+    const input = req.body;
 
     const newUser = await userRepository.save(
       userRepository.create({
         email: email.toLowerCase(),
         password,
-        name: req.body.name,
-        remark: req.body.remark,
-        tel: req.body.tel,
-        role: req.body.role,
-        photo_url: req.body.photo_url,
+        name: input.name,
+        remark: input.remark,
+        tel: input.tel,
+        role: input.role,
+        photo_url: input.photo_url,
       })
     );
 
@@ -31,13 +32,16 @@ export const registerUserHandler = async (req: Request, res: Response) => {
       res.status(200).json({
         status: "success",
         id: newUser.id,
-        message:
-          "An email with a verification has been sent to please wait for admin",
+        message: "User has been created",
+        data: newUser,
       });
     } catch (error) {
       return res.status(500).json({
         status: "error",
-        message: "There was an error sending verification, please try again",
+        message: {
+          title: "There was an error to create, please try again",
+          error: error,
+        },
       });
     }
   } catch (err: any) {
@@ -105,20 +109,14 @@ export const getUserHandler = async (req: Request, res: Response) => {
 
     res.status(200).json({
       status: "success",
-      data: {
-        users,
-      },
+      data: users,
     });
   } catch (err: any) {
     return responseErrors(res, 400, err);
   }
 };
 
-export const updateUserHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const updateUserHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
 
@@ -130,13 +128,15 @@ export const updateUserHandler = async (
       return responseErrors(res, 400, "User not found");
     }
 
-    users.photo_url = input.photo_url;
+    if (users.id == 1) {
+      return responseErrors(res, 400, "User not found");
+    }
 
+    users.photo_url = input.photo_url;
     users.email = input.email;
     users.name = input.name;
     users.remark = input.remark;
     users.tel = input.tel;
-    users.role = input.role;
     users.photo_url = input.photo_url;
 
     if (input.password && input.password !== "") {
@@ -147,9 +147,7 @@ export const updateUserHandler = async (
 
     res.status(200).json({
       status: "success",
-      data: {
-        users: updatedUsers,
-      },
+      data: updatedUsers,
     });
   } catch (err: any) {
     console.log(err);
@@ -158,11 +156,7 @@ export const updateUserHandler = async (
   }
 };
 
-export const deleteUserHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const deleteUserHandler = async (req: Request, res: Response) => {
   try {
     const users = await userRepository.findOneBy({
       id: req.params.id as any,

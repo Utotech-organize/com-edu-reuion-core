@@ -7,6 +7,8 @@ import { AppDataSource } from "./utils/data-source";
 // import bookingRouter from "./routes/booking.routes";
 import authRouter from "./routes/auth.routes";
 import userRouter from "./routes/user.routes";
+import customerRouter from "./routes/customer.routes";
+
 // import lessionRouter from "./routes/booking.routes";
 
 import validateEnv from "./utils/validateEnv";
@@ -54,6 +56,7 @@ AppDataSource.initialize()
 
     // ROUTES;
     // app.use("/api/bookings", bookingRouter);
+    app.use("/api/customers", customerRouter);
     app.use("/api/users", userRouter);
     app.use("/api/auth", authRouter);
 

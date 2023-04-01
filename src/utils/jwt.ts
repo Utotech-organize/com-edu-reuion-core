@@ -1,6 +1,6 @@
 import jwt, { SignOptions } from "jsonwebtoken";
 import config from "config";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 
 export const signJwt = (payload: Object) => {
   var privateKey = Buffer.from(

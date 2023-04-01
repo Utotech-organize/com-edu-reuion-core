@@ -15,13 +15,9 @@ const router = express.Router();
 
 // Register user
 router.post("/register", registerUserHandler);
-
 router.route("/").get(getAllUsersHandler);
-
-router
-  .route("/:id")
-  .get(getUserHandler)
-  .put(updateUserHandler)
-  .delete(deleteUserHandler);
+router.route("/:id").get(getUserHandler);
+router.route("/edit/:id").get(updateUserHandler);
+router.route("/delete/:id").get(updateUserHandler);
 
 export default router;

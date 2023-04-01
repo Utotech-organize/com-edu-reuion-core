@@ -1,29 +1,28 @@
 import { Entity, Column, Index, BeforeInsert, OneToMany } from "typeorm";
-import bcrypt from "bcryptjs";
 import Model from "./model.entity";
 
 @Entity("customer")
 export class Customer extends Model {
+  @Index("tel_index")
+  @Column({
+    unique: true,
+    nullable: false,
+  })
+  tel!: string;
+
   @Column({
     nullable: false,
   })
   name!: string; // fistname and lastname
-
-  @Index("tel_index")
-  @Column({
-    unique: true,
-  })
-  @Column({
-    nullable: false,
-  })
-  tel!: string;
 
   @Column({
     nullable: true,
   })
   information!: string;
 
-  @Column({})
+  @Column({
+    nullable: true,
+  })
   email!: string;
 
   @Column({
@@ -33,6 +32,10 @@ export class Customer extends Model {
   })
   role!: string;
 
+  @Index("liff_id_index")
+  @Column({
+    unique: true,
+  })
   @Column({ nullable: true })
   line_liff_id!: string;
 
