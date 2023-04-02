@@ -4,11 +4,11 @@ import config from "config";
 import morgan from "morgan";
 import cors from "cors";
 import { AppDataSource } from "./utils/data-source";
-// import bookingRouter from "./routes/booking.routes";
+
+import bookingRouter from "./routes/booking.routes";
 import authRouter from "./routes/auth.routes";
 import userRouter from "./routes/user.routes";
 import customerRouter from "./routes/customer.routes";
-
 // import lessionRouter from "./routes/booking.routes";
 
 import validateEnv from "./utils/validateEnv";
@@ -55,15 +55,13 @@ AppDataSource.initialize()
     }
 
     // ROUTES;
-    // app.use("/api/bookings", bookingRouter);
+    app.use("/api/bookings", bookingRouter);
     app.use("/api/customers", customerRouter);
     app.use("/api/users", userRouter);
     app.use("/api/auth", authRouter);
 
     // HEALTH CHECKER
     app.get("/api/healthChecker", async (_, res: Response) => {
-      // const message = await redisClient.get('try');
-
       res.status(200).json({
         status: "success",
         message: "Welcome to com edu reunion, we are happy to see you",

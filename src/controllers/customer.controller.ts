@@ -51,6 +51,7 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
         name: input.name,
         information: input.information,
         email: input.email,
+        status: "unpaid",
       })
     );
 
@@ -93,6 +94,7 @@ export const getAllCustomersHandler = async (req: Request, res: Response) => {
         "customer.updated_at AS updated_at",
         "customer.tel AS tel",
         "customer.name AS name",
+        "customer.status AS status",
         "customer.information AS information",
         "customer.email AS email",
         "customer.role AS role",
@@ -122,6 +124,7 @@ export const getCustomerHandler = async (req: Request, res: Response) => {
         "customer.updated_at AS updated_at",
         "customer.tel AS tel",
         "customer.name AS name",
+        "customer.status AS status",
         "customer.information AS information",
         "customer.email AS email",
         "customer.role AS role",
@@ -163,6 +166,7 @@ export const updateCustomerHandler = async (req: Request, res: Response) => {
     users.name = input.name;
     users.information = input.information;
     users.email = input.email;
+    users.status = input.status;
 
     const updatedCustomer = await customerRepository.save(users);
 
@@ -186,6 +190,8 @@ export const deleteCustomerHandler = async (req: Request, res: Response) => {
     if (!customer) {
       return responseErrors(res, 400, "Customer not found");
     }
+
+    await deskRepository.delete(customer.id); //FIXME
 
     res.status(204).json({
       status: "success",

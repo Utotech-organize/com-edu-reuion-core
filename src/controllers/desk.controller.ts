@@ -1,7 +1,162 @@
+import { Request, Response } from "express";
+import { Desk } from "../entities/desk.entity";
+
+import { AppDataSource } from "../utils/data-source";
+import { responseErrors } from "../utils/common";
+
+const deskRepository = AppDataSource.getRepository(Desk);
+
+export const createDeskHandler = async (req: Request, res: Response) => {
+  try {
+    // const userId = req.user.id;
+    const input = req.body;
+
+    const newDesk = await deskRepository.save(
+      deskRepository.create({
+        active: input.active,
+        label: input.label,
+        status: input.status,
+      })
+    );
+
+    await newDesk.save();
+
+    try {
+      res.status(200).json({
+        status: "create success",
+        id: newDesk.id,
+        message: "Desk has been created",
+        data: newDesk,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: "error",
+        message: {
+          title: "There was an error to create, please try again",
+          error: error,
+        },
+      });
+    }
+  } catch (err: any) {
+    if (err.code === "23505") {
+      return res.status(409).json({
+        status: "fail",
+        message: "Desk with that tel and liff_id already exist",
+      });
+    }
+    return responseErrors(res, 400, err);
+  }
+};
+
+export const getAllDesksHandler = async (req: Request, res: Response) => {
+  try {
+    const desks = await deskRepository
+      .createQueryBuilder("desks")
+      .select([
+        "desks.id AS id",
+        "desks.created_at AS created_at",
+        "desks.updated_at AS updated_at",
+        "desks.active AS active",
+        "desks.label AS label",
+        "desks.status AS status",
+      ])
+      .getRawMany();
+
+    res.status(200).json({
+      status: "success",
+      results: desks.length,
+      data: desks,
+    });
+  } catch (err: any) {
+    return responseErrors(res, 400, err);
+  }
+};
+
+export const getDeskHandler = async (req: Request, res: Response) => {
+  try {
+    const Desk = await deskRepository
+      .createQueryBuilder("desks")
+      .select([
+        "desks.id AS id",
+        "desks.created_at AS created_at",
+        "desks.updated_at AS updated_at",
+        "desks.active AS active",
+        "desks.label AS label",
+        "desks.status AS status",
+      ])
+      .where("desks.id = :id", { id: req.params.id })
+      .getRawOne();
+
+    if (!Desk) {
+      return responseErrors(res, 400, "Desks not found");
+    }
+
+    // const lss = await getLessionByUser(+req.params.postId);
+    // Desk["lessions"] = lss;
+
+    res.status(200).json({
+      status: "success",
+      data: Desk,
+    });
+  } catch (err: any) {
+    return responseErrors(res, 400, err);
+  }
+};
+
+export const updateDeskHandler = async (req: Request, res: Response) => {
+  try {
+    const input = req.body;
+
+    const desk = await deskRepository.findOneBy({
+      id: req.params.id as any,
+    });
+
+    if (!desk) {
+      return responseErrors(res, 400, "Desk not found");
+    }
+
+    desk.active = input.active;
+    desk.label = input.label;
+    desk.status = input.status;
+
+    const updatedDesk = await deskRepository.save(desk);
+
+    res.status(200).json({
+      status: "update success",
+      data: updatedDesk,
+    });
+  } catch (err: any) {
+    console.log(err);
+
+    return responseErrors(res, 400, "Can't update your Desk");
+  }
+};
+
+export const deleteDeskHandler = async (req: Request, res: Response) => {
+  try {
+    const desk = await deskRepository.findOneBy({
+      id: req.params.id as any,
+    });
+
+    if (!desk) {
+      return responseErrors(res, 400, "Desk not found");
+    }
+
+    await deskRepository.delete(desk.id); //FIXME
+
+    res.status(204).json({
+      status: "success",
+      data: null,
+    });
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't delete your Desk");
+  }
+};
+
 // import { Request, Response } from "express";
 
 // import { Desk } from "../entities/desk.entity";
-// import { Chair } from "../entities/chair.entity";
+// import { Desk } from "../entities/Desk.entity";
 // import { AppDataSource } from "../utils/data-source";
 // import { OurFile } from "../entities/upload.entity";
 
@@ -12,7 +167,7 @@
 // /* Getting the lession repository from the database. */
 // const lessionRepository = AppDataSource.getRepository(Desk);
 // /* Getting the pretest repository from the database. */
-// const pretestRepository = AppDataSource.getRepository(Chair);
+// const pretestRepository = AppDataSource.getRepository(Desk);
 // /* Getting the repository for the OurFile class. */
 // const fileUploadedRepository = AppDataSource.getRepository(OurFile);
 // /* Getting the lession repository from the database. */
@@ -46,7 +201,7 @@
 //     let pretest;
 //     if (input.have_pretest) {
 //       let input_pretest: any = input.pretests;
-//       let new_pretest: Chair[] = [];
+//       let new_pretest: Desk[] = [];
 
 //       for (var i of input_pretest) {
 //         let pret = {
@@ -59,14 +214,14 @@
 //           lession: {
 //             id: lession.id,
 //           } as Desk,
-//         } as Chair;
+//         } as Desk;
 
 //         new_pretest.push(pret);
 //       }
 //       pretest = await pretestRepository.save(new_pretest);
 //     }
 
-//     lession!.chair = pretest as Chair[];
+//     lession!.Desk = pretest as Desk[];
 
 //     res.status(200).json({
 //       status: "success",
@@ -122,10 +277,10 @@
 //       })
 //       .getMany();
 
-//     lessionData!.chair = pretest;
+//     lessionData!.Desk = pretest;
 
 //     if (lessionData!.is_random) {
-//       shuffle(lessionData!.chair);
+//       shuffle(lessionData!.Desk);
 //     }
 
 //     const userId = req.user.id;
@@ -205,7 +360,7 @@
 //       files_url_1: files1,
 //       files_url_2: files2,
 //       files_url_3: files3,
-//       pretests: lessionData.chair,
+//       pretests: lessionData.Desk,
 //     };
 
 //     res.status(200).json({
@@ -319,7 +474,7 @@
 // };
 
 // export const updatePretest = async (lssId: any, inPretest: any) => {
-//   let newPretest: Chair[] = [];
+//   let newPretest: Desk[] = [];
 
 //   const pretests = await pretestRepository
 //     .createQueryBuilder("pretest")

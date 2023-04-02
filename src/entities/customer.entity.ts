@@ -25,6 +25,9 @@ export class Customer extends Model {
   })
   email!: string;
 
+  @Column({})
+  status!: string;
+
   @Column({
     default: "customer",
     type: String,

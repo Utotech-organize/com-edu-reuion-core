@@ -84,7 +84,7 @@ export const getAllUsersHandler = async (req: Request, res: Response) => {
 
 export const getUserHandler = async (req: Request, res: Response) => {
   try {
-    const users = await userRepository
+    const user = await userRepository
       .createQueryBuilder("users")
       .select([
         "users.id AS id",
@@ -100,7 +100,7 @@ export const getUserHandler = async (req: Request, res: Response) => {
       .where("users.id = :id", { id: req.params.id })
       .getRawOne();
 
-    if (!users) {
+    if (!user) {
       return responseErrors(res, 400, "User not found");
     }
 
@@ -109,7 +109,7 @@ export const getUserHandler = async (req: Request, res: Response) => {
 
     res.status(200).json({
       status: "success",
-      data: users,
+      data: user,
     });
   } catch (err: any) {
     return responseErrors(res, 400, err);
@@ -120,30 +120,30 @@ export const updateUserHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
 
-    const users = await userRepository.findOneBy({
+    const user = await userRepository.findOneBy({
       id: req.params.id as any,
     });
 
-    if (!users) {
+    if (!user) {
       return responseErrors(res, 400, "User not found");
     }
 
-    if (users.id == 1) {
+    if (user.id == 1) {
       return responseErrors(res, 400, "User not found");
     }
 
-    users.photo_url = input.photo_url;
-    users.email = input.email;
-    users.name = input.name;
-    users.remark = input.remark;
-    users.tel = input.tel;
-    users.photo_url = input.photo_url;
+    user.photo_url = input.photo_url;
+    user.email = input.email;
+    user.name = input.name;
+    user.remark = input.remark;
+    user.tel = input.tel;
+    user.photo_url = input.photo_url;
 
     if (input.password && input.password !== "") {
-      users.password = await bcrypt.hash(input.password, 12);
+      user.password = await bcrypt.hash(input.password, 12);
     }
 
-    const updatedUsers = await userRepository.save(users);
+    const updatedUsers = await userRepository.save(user);
 
     res.status(200).json({
       status: "success",
@@ -158,13 +158,15 @@ export const updateUserHandler = async (req: Request, res: Response) => {
 
 export const deleteUserHandler = async (req: Request, res: Response) => {
   try {
-    const users = await userRepository.findOneBy({
+    const user = await userRepository.findOneBy({
       id: req.params.id as any,
     });
 
-    if (!users) {
+    if (!user) {
       return responseErrors(res, 400, "User not found");
     }
+
+    await deskRepository.delete(user.id); //FIXME
 
     res.status(204).json({
       status: "success",

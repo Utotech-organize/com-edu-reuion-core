@@ -8,10 +8,10 @@ export class Desk extends Model {
   active!: boolean;
 
   @Column()
-  title!: string;
+  label!: string;
 
   @Column()
-  status!: boolean;
+  status!: string;
 
   @OneToMany(() => Chair, (chair) => chair.id)
   chair!: Chair[];

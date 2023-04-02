@@ -11,6 +11,8 @@ const validateEnv = () => {
     POSTGRES_DB: str(),
     JWT_ACCESS_TOKEN_PRIVATE_KEY: str(),
     JWT_ACCESS_TOKEN_PUBLIC_KEY: str(),
+    SUPER_ADMIN_EMAIL: str(),
+    SUPER_ADMIN_PASSWORD: str(),
   });
 };
 

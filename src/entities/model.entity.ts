@@ -3,6 +3,7 @@ import {
   UpdateDateColumn,
   PrimaryGeneratedColumn,
   BaseEntity,
+  DeleteDateColumn,
 } from "typeorm";
 
 /* Creating a base class for all of our models. */
@@ -15,4 +16,7 @@ export default abstract class Model extends BaseEntity {
 
   @UpdateDateColumn()
   updated_at!: Date;
+
+  @DeleteDateColumn()
+  delete_at!: Date;
 }
