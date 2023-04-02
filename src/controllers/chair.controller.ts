@@ -3,7 +3,11 @@ import { Desks } from "../entities/desk.entity";
 import { Chairs } from "../entities/chair.entity";
 
 import { AppDataSource } from "../utils/data-source";
-import { responseErrors } from "../utils/common";
+import {
+  responseErrors,
+  statusAvailable,
+  statusUnAvailable,
+} from "../utils/common";
 
 const chairRepository = AppDataSource.getRepository(Chairs);
 
@@ -62,6 +66,9 @@ export const getAllChairsHandler = async (req: Request, res: Response) => {
         "chairs.label AS label",
         "chairs.status AS status",
         "chairs.price AS price",
+        "chairs.customer_id AS customer_id",
+        "chairs.approve_by AS approve_by",
+        "chairs.user_id AS user_id",
       ])
       .getRawMany();
 
@@ -72,6 +79,45 @@ export const getAllChairsHandler = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     return responseErrors(res, 400, "Can't get all Chair", err.message);
+  }
+};
+
+export const getAllChairsWithDeskIDHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const deskID = req.params.id;
+
+    const chairs = await chairRepository
+      .createQueryBuilder("chairs")
+      .select([
+        "chairs.id AS id",
+        "chairs.created_at AS created_at",
+        "chairs.updated_at AS updated_at",
+        "chairs.deleted_at AS deleted_at",
+        "chairs.label AS label",
+        "chairs.status AS status",
+        "chairs.price AS price",
+        "chairs.customer_id AS customer_id",
+        "chairs.approve_by AS approve_by",
+        "chairs.user_id AS user_id",
+      ])
+      .where("chairs.desk_id = :id", { id: deskID })
+      .getRawMany();
+
+    res.status(200).json({
+      status: "success",
+      results: chairs.length,
+      data: chairs,
+    });
+  } catch (err: any) {
+    return responseErrors(
+      res,
+      400,
+      "Can't get all Chair with desk id",
+      err.message
+    );
   }
 };
 
@@ -88,6 +134,9 @@ export const getChairHandler = async (req: Request, res: Response) => {
         "chairs.status AS status",
         "chairs.price AS price",
         "chairs.desk_id AS desk_id",
+        "chairs.customer_id AS customer_id",
+        "chairs.approve_by AS approve_by",
+        "chairs.user_id AS user_id",
       ])
       .where("chairs.id = :id", { id: req.params.id })
       .getRawOne();
@@ -115,16 +164,27 @@ export const updateChairHandler = async (req: Request, res: Response) => {
 
     const chair = await chairRepository.findOneBy({
       id: req.params.id as any,
+      status: statusAvailable,
     });
 
     if (!chair) {
       return responseErrors(res, 400, "Chair not found", "cannot find chair");
     }
 
-    // chairs.name = input.name;
-    // chairs.information = input.information;
-    // chairs.email = input.email;
+    const user = await chairRepository.findOneBy({
+      id: userId as any,
+    });
+
+    if (!user) {
+      return responseErrors(res, 400, "User not found", "cannot find chair");
+    }
+
+    chair.label = input.label;
     chair.status = input.status;
+    chair.price = input.price;
+    chair.customer_name = input.customer_name;
+    chair.approve_by = input.approve_by;
+    chair.user_id = userId;
 
     const updatedChair = await chairRepository.save(chair);
 
@@ -136,6 +196,42 @@ export const updateChairHandler = async (req: Request, res: Response) => {
     return responseErrors(res, 400, "Can't update your Chair", err.message);
   }
 };
+
+// export const updateChairWithUser = async (
+//   res: Response,
+//   chair_id: number,
+//   customer_id: number,
+//   customer_name: string,
+//   user: any
+// ) => {
+//   try {
+//     const chair = await chairRepository.findOneBy({
+//       id: chair_id,
+//       status: statusAvailable,
+//     });
+
+//     if (!chair) {
+//       return responseErrors(
+//         res,
+//         400,
+//         "Chair not found",
+//         "chair is not available"
+//       );
+//     }
+
+//     chair.status = statusUnAvailable;
+//     chair.customer_id = customer_id;
+//     chair.customer_name = customer_name;
+//     chair.approve_by = user.name;
+//     chair.user_id = user.id;
+
+//     const updatedChair = await chairRepository.save(chair);
+
+//     return updatedChair;
+//   } catch (err: any) {
+//     return responseErrors(res, 400, "Can't booked your Chair", err.message);
+//   }
+// };
 
 export const deleteChairHandler = async (req: Request, res: Response) => {
   try {

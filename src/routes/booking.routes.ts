@@ -5,6 +5,7 @@ import {
   createChairHandler,
   deleteChairHandler,
   getAllChairsHandler,
+  getAllChairsWithDeskIDHandler,
   getChairHandler,
   updateChairHandler,
 } from "../controllers/chair.controller";
@@ -18,11 +19,13 @@ import {
 
 const router = express.Router();
 
+router.route("/desks/").get(getAllDesksHandler);
+router.route("/chairs/desk/:id").get(getAllChairsWithDeskIDHandler);
+
 // FIXME enable when frontend send bearer token
-// router.use(verifyJwt);
+router.use(verifyJwt);
 
 router.post("/desks/new", createDeskHandler);
-router.route("/desks/").get(getAllDesksHandler);
 router.route("/desks/:id").get(getDeskHandler);
 router.route("/desks/edit/:id").put(updateDeskHandler);
 router.route("/desks/delete/:id").delete(deleteDeskHandler);

@@ -11,11 +11,12 @@ import { verifyJwt } from "../utils/jwt";
 
 const router = express.Router();
 
+router.post("/new", createCustomerHandler);
+
 // FIXME enable when frontend send bearer token
-// router.use(verifyJwt);
+router.use(verifyJwt);
 
 // Register user
-router.post("/new", createCustomerHandler);
 router.route("/").get(getAllCustomersHandler);
 router.route("/:id").get(getCustomerHandler);
 router.route("/edit/:id").get(updateCustomerHandler);
