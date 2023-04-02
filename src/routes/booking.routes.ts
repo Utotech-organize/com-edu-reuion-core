@@ -5,6 +5,7 @@ import {
   createChairHandler,
   deleteChairHandler,
   getAllChairsHandler,
+  getAllChairsWithDeskIDHandler,
   getChairHandler,
   updateChairHandler,
 } from "../controllers/chair.controller";
@@ -29,6 +30,7 @@ router.route("/desks/delete/:id").delete(deleteDeskHandler);
 
 router.post("/chairs/new", createChairHandler);
 router.route("/chairs/").get(getAllChairsHandler);
+router.route("/chairs/desk/:id").get(getAllChairsWithDeskIDHandler);
 router.route("/chairs/:id").get(getChairHandler);
 router.route("/chairs/edit/:id").get(updateChairHandler);
 router.route("/chairs/delete/:id").get(deleteChairHandler);

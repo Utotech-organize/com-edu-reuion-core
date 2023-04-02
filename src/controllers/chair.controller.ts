@@ -78,6 +78,45 @@ export const getAllChairsHandler = async (req: Request, res: Response) => {
   }
 };
 
+export const getAllChairsWithDeskIDHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const deskID = req.params.id;
+
+    const chairs = await chairRepository
+      .createQueryBuilder("chairs")
+      .select([
+        "chairs.id AS id",
+        "chairs.created_at AS created_at",
+        "chairs.updated_at AS updated_at",
+        "chairs.deleted_at AS deleted_at",
+        "chairs.label AS label",
+        "chairs.status AS status",
+        "chairs.price AS price",
+        "chairs.customer_id AS customer_id",
+        "chairs.approve_by AS approve_by",
+        "chairs.user_id AS user_id",
+      ])
+      .where("chairs.desk_id = :id", { id: deskID })
+      .getRawMany();
+
+    res.status(200).json({
+      status: "success",
+      results: chairs.length,
+      data: chairs,
+    });
+  } catch (err: any) {
+    return responseErrors(
+      res,
+      400,
+      "Can't get all Chair with desk id",
+      err.message
+    );
+  }
+};
+
 export const getChairHandler = async (req: Request, res: Response) => {
   try {
     const chair = await chairRepository
