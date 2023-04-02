@@ -1,12 +1,19 @@
 import { Request, Response } from "express";
 import { Desks } from "../entities/desk.entity";
 import { Users } from "../entities/user.entity";
-import { removeValue, responseErrors } from "../utils/common";
+import { Chairs } from "../entities/chair.entity";
+import {
+  removeValue,
+  responseErrors,
+  statusAvailable,
+  statusUnAvailable,
+} from "../utils/common";
 import { AppDataSource } from "../utils/data-source";
 import bcrypt from "bcryptjs";
 
 const userRepository = AppDataSource.getRepository(Users);
 const deskRepository = AppDataSource.getRepository(Desks);
+const chairRepository = AppDataSource.getRepository(Chairs);
 
 export const registerUserHandler = async (req: Request, res: Response) => {
   try {

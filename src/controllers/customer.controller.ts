@@ -61,9 +61,16 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
 
     const newCustomer = await customerRepository.save(new_customer);
 
-    chairs.forEach((chair_id: any) => {
-      updateChairWithCustomer(res, chair_id, newCustomer.id, newCustomer.name);
-    });
+    if (chairs) {
+      chairs.forEach((chair_id: any) => {
+        updateChairWithCustomer(
+          res,
+          chair_id,
+          newCustomer.id,
+          newCustomer.name
+        );
+      });
+    }
 
     try {
       res.status(200).json({
