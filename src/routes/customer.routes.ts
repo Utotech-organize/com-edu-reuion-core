@@ -19,7 +19,7 @@ router.use(verifyJwt);
 // Register user
 router.route("/").get(getAllCustomersHandler);
 router.route("/:id").get(getCustomerHandler);
-router.route("/edit/:id").get(updateCustomerHandler);
-router.route("/delete/:id").get(deleteCustomerHandler);
+router.route("/edit/:id").put(updateCustomerHandler);
+router.route("/delete/:id").delete(deleteCustomerHandler);
 
 export default router;

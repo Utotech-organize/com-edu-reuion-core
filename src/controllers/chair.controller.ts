@@ -157,7 +157,11 @@ export const getChairHandler = async (req: Request, res: Response) => {
   }
 };
 
-export const updateChairHandler = async (req: Request, res: Response) => {
+// updateChairWithUserHandler with user approve
+export const updateChairWithUserHandler = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const userId = req.user.id;
     const input = req.body;
@@ -196,42 +200,6 @@ export const updateChairHandler = async (req: Request, res: Response) => {
     return responseErrors(res, 400, "Can't update your Chair", err.message);
   }
 };
-
-// export const updateChairWithUser = async (
-//   res: Response,
-//   chair_id: number,
-//   customer_id: number,
-//   customer_name: string,
-//   user: any
-// ) => {
-//   try {
-//     const chair = await chairRepository.findOneBy({
-//       id: chair_id,
-//       status: statusAvailable,
-//     });
-
-//     if (!chair) {
-//       return responseErrors(
-//         res,
-//         400,
-//         "Chair not found",
-//         "chair is not available"
-//       );
-//     }
-
-//     chair.status = statusUnAvailable;
-//     chair.customer_id = customer_id;
-//     chair.customer_name = customer_name;
-//     chair.approve_by = user.name;
-//     chair.user_id = user.id;
-
-//     const updatedChair = await chairRepository.save(chair);
-
-//     return updatedChair;
-//   } catch (err: any) {
-//     return responseErrors(res, 400, "Can't booked your Chair", err.message);
-//   }
-// };
 
 export const deleteChairHandler = async (req: Request, res: Response) => {
   try {
