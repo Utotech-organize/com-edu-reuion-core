@@ -87,6 +87,7 @@ export const getChairHandler = async (req: Request, res: Response) => {
         "chairs.label AS label",
         "chairs.status AS status",
         "chairs.price AS price",
+        "chairs.desk_id AS desk_id",
       ])
       .where("chairs.id = :id", { id: req.params.id })
       .getRawOne();

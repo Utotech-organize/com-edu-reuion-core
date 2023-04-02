@@ -43,8 +43,6 @@ export const createDeskHandler = async (req: Request, res: Response) => {
 
     desks!.chairs = chairs as Chairs[];
 
-    await desks.save();
-
     try {
       res.status(200).json({
         status: "create success",
@@ -100,26 +98,23 @@ export const getAllDesksHandler = async (req: Request, res: Response) => {
 
 export const getDeskHandler = async (req: Request, res: Response) => {
   try {
-    const Desk = await deskRepository
-      .createQueryBuilder("desks")
-      .select([
-        "desks.id AS id",
-        "desks.created_at AS created_at",
-        "desks.updated_at AS updated_at",
-        "desks.deleted_at AS deleted_at",
-        "desks.active AS active",
-        "desks.label AS label",
-        "desks.status AS status",
-      ])
-      .where("desks.id = :id", { id: req.params.id })
-      .getRawOne();
+    const Desk = await deskRepository.findOneBy({
+      id: req.params.id as any,
+      active: true,
+    });
 
     if (!Desk) {
       return responseErrors(res, 400, "Desks not found", "cannot find desk");
     }
 
-    // const lss = await getLessionByUser(+req.params.postId);
-    // Desk["lessions"] = lss;
+    const chairs = await chairRepository
+      .createQueryBuilder("chairs")
+      .where("desk_id = :desk_id", {
+        desk_id: Desk?.id,
+      })
+      .getMany();
+
+    Desk!.chairs = chairs;
 
     res.status(200).json({
       status: "success",
