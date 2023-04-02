@@ -3,13 +3,11 @@ import { Desks } from "../entities/desk.entity";
 import { Chairs } from "../entities/chair.entity";
 
 import { AppDataSource } from "../utils/data-source";
-import {
-  responseErrors,
-  statusAvailable,
-  statusUnAvailable,
-} from "../utils/common";
+import { responseErrors } from "../utils/common";
+import { Users } from "../entities/user.entity";
 
 const chairRepository = AppDataSource.getRepository(Chairs);
+const userRepository = AppDataSource.getRepository(Users);
 
 export const createChairHandler = async (req: Request, res: Response) => {
   try {
@@ -71,6 +69,7 @@ export const getAllChairsHandler = async (req: Request, res: Response) => {
         "chairs.approve_by AS approve_by",
         "chairs.user_id AS user_id",
       ])
+      .where("chairs.deleted_at is null")
       .getRawMany();
 
     res.status(200).json({
@@ -106,6 +105,7 @@ export const getAllChairsWithDeskIDHandler = async (
         "chairs.user_id AS user_id",
       ])
       .where("chairs.desk_id = :id", { id: deskID })
+      .andWhere("chairs.deleted_at is null")
       .getRawMany();
 
     res.status(200).json({
@@ -142,14 +142,12 @@ export const getChairHandler = async (req: Request, res: Response) => {
         "chairs.user_id AS user_id",
       ])
       .where("chairs.id = :id", { id: req.params.id })
+      .andWhere("chairs.deleted_at is null")
       .getRawOne();
 
     if (!chair) {
       return responseErrors(res, 400, "Chair not found", "cannot find chair");
     }
-
-    // const lss = await getLessionByUser(+req.params.postId);
-    // chair["lessions"] = lss;
 
     res.status(200).json({
       status: "success",
@@ -171,14 +169,13 @@ export const updateChairWithUserHandler = async (
 
     const chair = await chairRepository.findOneBy({
       id: req.params.id as any,
-      status: statusAvailable,
     });
 
     if (!chair) {
       return responseErrors(res, 400, "Chair not found", "cannot find chair");
     }
 
-    const user = await chairRepository.findOneBy({
+    const user = await userRepository.findOneBy({
       id: userId as any,
     });
 
@@ -190,7 +187,7 @@ export const updateChairWithUserHandler = async (
     chair.status = input.status;
     chair.price = input.price;
     chair.customer_name = input.customer_name;
-    chair.approve_by = input.approve_by;
+    chair.approve_by = user.name;
     chair.user_id = userId;
 
     const updatedChair = await chairRepository.save(chair);
