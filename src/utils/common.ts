@@ -1,5 +1,13 @@
 import { Response } from "express";
 
+export const statusAvailable = "available";
+export const statusPending = "pending";
+export const statusUnAvailable = "unavailable";
+export const statusPaid = "paid";
+export const statusUnPaid = "unpaid";
+export const chairPrice = 350;
+export const chairTable = 3200;
+
 export const responseErrors = (
   res: Response,
   status: number,
