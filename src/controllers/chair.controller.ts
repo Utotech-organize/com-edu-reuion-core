@@ -62,6 +62,9 @@ export const getAllChairsHandler = async (req: Request, res: Response) => {
         "chairs.label AS label",
         "chairs.status AS status",
         "chairs.price AS price",
+        "chairs.customer_id AS customer_id",
+        "chairs.approve_by AS approve_by",
+        "chairs.user_id AS user_id",
       ])
       .getRawMany();
 
@@ -88,6 +91,9 @@ export const getChairHandler = async (req: Request, res: Response) => {
         "chairs.status AS status",
         "chairs.price AS price",
         "chairs.desk_id AS desk_id",
+        "chairs.customer_id AS customer_id",
+        "chairs.approve_by AS approve_by",
+        "chairs.user_id AS user_id",
       ])
       .where("chairs.id = :id", { id: req.params.id })
       .getRawOne();

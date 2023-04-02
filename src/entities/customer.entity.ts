@@ -1,5 +1,6 @@
 import { Entity, Column, Index, BeforeInsert, OneToMany } from "typeorm";
 import Model from "./model.entity";
+import { Chairs } from "./chair.entity";
 
 @Entity("customers")
 export class Customers extends Model {
@@ -48,6 +49,6 @@ export class Customers extends Model {
   @Column({ nullable: true })
   line_photo_url!: string;
 
-  // @OneToMany(() => PretestResult, (preResult) => preResult.pretest) //FIXME relate with chair
-  // pretestResults!: PretestResult[];
+  // @OneToMany(() => Chairs, (chair) => chair.id) //FIXME relate with chair
+  // chairs!: Chairs[];
 }

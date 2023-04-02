@@ -3,8 +3,13 @@ import { Desks } from "../entities/desk.entity";
 import { Chairs } from "../entities/chair.entity";
 
 import { AppDataSource } from "../utils/data-source";
-import { responseErrors } from "../utils/common";
+import {
+  responseErrors,
+  statusAvailable,
+  statusPending,
+} from "../utils/common";
 import { Customers } from "../entities/customer.entity";
+import { updateDeskHandler } from "./desk.controller";
 
 const chairRepository = AppDataSource.getRepository(Chairs);
 const deskRepository = AppDataSource.getRepository(Desks);
@@ -41,21 +46,24 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
   try {
     // const userId = req.user.id;
     const input = req.body;
+    const chairs = input.chairs;
 
-    const newCustomer = await customerRepository.save(
-      customerRepository.create({
-        line_liff_id: input.line_liff_id,
-        line_display_name: input.line_display_name,
-        line_photo_url: input.line_photo_url,
-        tel: input.tel,
-        name: input.name,
-        information: input.information,
-        email: input.email,
-        status: "unpaid",
-      })
-    );
+    let new_customer = {
+      line_liff_id: input.line_liff_id,
+      line_display_name: input.line_display_name,
+      line_photo_url: input.line_photo_url,
+      tel: input.tel,
+      name: input.name,
+      information: input.information,
+      email: input.email,
+      status: "unpaid",
+    } as Customers;
 
-    await newCustomer.save();
+    const newCustomer = await customerRepository.save(new_customer);
+
+    chairs.forEach((chair_id: any) => {
+      updateChairWithCustomer(res, chair_id, newCustomer.id, newCustomer.name);
+    });
 
     try {
       res.status(200).json({
@@ -82,6 +90,39 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
       );
     }
     return responseErrors(res, 400, "Can't create Customer", err.message);
+  }
+};
+
+export const updateChairWithCustomer = async (
+  res: Response,
+  chair_id: number,
+  customer_id: number,
+  customer_name: string
+) => {
+  try {
+    const chair = await chairRepository.findOneBy({
+      id: chair_id,
+      status: statusAvailable,
+    });
+
+    if (!chair) {
+      return responseErrors(
+        res,
+        400,
+        "Chair not found",
+        "chair is not available"
+      );
+    }
+
+    chair.status = statusPending;
+    chair.customer_id = customer_id;
+    chair.customer_name = customer_name;
+
+    const updatedChair = await chairRepository.save(chair);
+
+    return updatedChair;
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't booked your Chair", err.message);
   }
 };
 
