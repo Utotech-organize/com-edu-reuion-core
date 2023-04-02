@@ -20,6 +20,7 @@ export const initDeskAndChairs = async () => {
         label: i.label,
         status: i.status,
         price: i.price,
+        chair_no: i.chair_no,
         desk: {
           id: desk.id,
         } as Desks,

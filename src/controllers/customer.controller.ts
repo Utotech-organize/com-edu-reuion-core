@@ -105,8 +105,8 @@ export const getAllCustomersHandler = async (req: Request, res: Response) => {
 export const getCustomerHandler = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
-    // const line_liff_id = req.params.line_liff_id;
-    // const phone = req.params.phone;
+    const line_liff_id = req.params.line_liff_id;
+    const phone = req.params.phone;
 
     const customer = await customerRepository
       .createQueryBuilder("customers")
