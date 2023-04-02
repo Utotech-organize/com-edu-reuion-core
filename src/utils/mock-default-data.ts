@@ -67,7 +67,7 @@ function generateDeskinComedu(count: any) {
     let deskinComedu = {
       active: true,
       label: labelDesk[index],
-      status: "pending",
+      status: statusAvailable,
       chairs: [
         {
           label: "A",
