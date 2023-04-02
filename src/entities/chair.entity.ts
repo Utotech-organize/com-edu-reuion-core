@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { Desk } from "./desk.entity";
+import { Desks } from "./desk.entity";
 import Model from "./model.entity";
 
-@Entity("chair")
-export class Chair extends Model {
+@Entity("chairs")
+export class Chairs extends Model {
   @Column({
     nullable: false,
   })
@@ -18,7 +18,7 @@ export class Chair extends Model {
   @Column()
   price!: number;
 
-  @ManyToOne(() => Desk, (desk) => desk.chair)
+  @ManyToOne(() => Desks, (desk) => desk.chairs)
   @JoinColumn({ name: "desk_id" })
-  desk: Desk | undefined;
+  desk!: Desks;
 }

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import Model from "./model.entity";
 
 @Entity("users")
-export class User extends Model {
+export class Users extends Model {
   @Index("email_index")
   @Column({
     unique: true,

@@ -1,9 +1,15 @@
 import { Response } from "express";
 
-export const responseErrors = (res: Response, status: number, err: any) => {
+export const responseErrors = (
+  res: Response,
+  status: number,
+  message: any,
+  err: any
+) => {
   return res.status(status).json({
     status: "error",
-    message: err,
+    message: message,
+    error: err,
   });
 };
 
@@ -25,4 +31,14 @@ export function shuffle<T>(array: T[]): T[] {
   }
 
   return array;
+}
+
+export function removeValue(value: any, index: any, arr: any) {
+  // If the value at the current array index matches the specified value (2)
+  if (value) {
+    // Removes the value from the original array
+    arr.splice(index, 1);
+    return true;
+  }
+  return false;
 }

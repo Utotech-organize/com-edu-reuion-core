@@ -1,4 +1,4 @@
-# Cloud-Computing-Core
+# Com Edu Reunion Project part "Core"
 
 Steps to run this project:
 

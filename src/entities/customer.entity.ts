@@ -1,8 +1,8 @@
 import { Entity, Column, Index, BeforeInsert, OneToMany } from "typeorm";
 import Model from "./model.entity";
 
-@Entity("customer")
-export class Customer extends Model {
+@Entity("customers")
+export class Customers extends Model {
   @Index("tel_index")
   @Column({
     unique: true,
@@ -24,6 +24,9 @@ export class Customer extends Model {
     nullable: true,
   })
   email!: string;
+
+  @Column({})
+  status!: string;
 
   @Column({
     default: "customer",

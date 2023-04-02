@@ -8,7 +8,7 @@ down:
 
 .PHONY:
 psql:
-	docker-compose exec postgres psql -U admin node_typeorm
+	docker-compose exec postgres psql -U admin cer_db
 
 .PHONY:
 build:

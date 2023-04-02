@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { Desk } from "../entities/desk.entity";
-import { User } from "../entities/user.entity";
-import { responseErrors } from "../utils/common";
+import { Desks } from "../entities/desk.entity";
+import { Users } from "../entities/user.entity";
+import { removeValue, responseErrors } from "../utils/common";
 import { AppDataSource } from "../utils/data-source";
 import bcrypt from "bcryptjs";
 
-const userRepository = AppDataSource.getRepository(User);
-const deskRepository = AppDataSource.getRepository(Desk);
+const userRepository = AppDataSource.getRepository(Users);
+const deskRepository = AppDataSource.getRepository(Desks);
 // const pretestResultRepository = AppDataSource.getRepository(PretestResult);
 
 export const registerUserHandler = async (req: Request, res: Response) => {
@@ -35,23 +35,24 @@ export const registerUserHandler = async (req: Request, res: Response) => {
         message: "User has been created",
         data: newUser,
       });
-    } catch (error) {
-      return res.status(500).json({
-        status: "error",
-        message: {
-          title: "There was an error to create, please try again",
-          error: error,
-        },
-      });
+    } catch (err: any) {
+      return responseErrors(
+        res,
+        500,
+        "There was an error to create, please try again",
+        err.message
+      );
     }
   } catch (err: any) {
     if (err.code === "23505") {
-      return res.status(409).json({
-        status: "fail",
-        message: "User with that email already exist",
-      });
+      return responseErrors(
+        res,
+        409,
+        "User with that email already exist",
+        err.message
+      );
     }
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't create User", err.message);
   }
 };
 
@@ -63,6 +64,7 @@ export const getAllUsersHandler = async (req: Request, res: Response) => {
         "users.id AS id",
         "users.created_at AS created_at",
         "users.updated_at AS updated_at",
+        "users.deleted_at AS deleted_at",
         "users.email AS email",
         "users.name AS name",
         "users.remark AS remark",
@@ -72,24 +74,27 @@ export const getAllUsersHandler = async (req: Request, res: Response) => {
       ])
       .getRawMany();
 
+    removeValue(users[0], 0, users); // not show super admin
+
     res.status(200).json({
       status: "success",
       results: users.length,
       data: users,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't get all User", err.message);
   }
 };
 
 export const getUserHandler = async (req: Request, res: Response) => {
   try {
-    const users = await userRepository
+    const user = await userRepository
       .createQueryBuilder("users")
       .select([
         "users.id AS id",
         "users.created_at AS created_at",
         "users.updated_at AS updated_at",
+        "users.deleted_at AS deleted_at",
         "users.email AS email",
         "users.name AS name",
         "users.remark AS remark",
@@ -100,8 +105,8 @@ export const getUserHandler = async (req: Request, res: Response) => {
       .where("users.id = :id", { id: req.params.id })
       .getRawOne();
 
-    if (!users) {
-      return responseErrors(res, 400, "User not found");
+    if (!user || user.id == 1) {
+      return responseErrors(res, 400, "User not found", "cannot find user");
     }
 
     // const lss = await getLessionByUser(+req.params.postId);
@@ -109,10 +114,10 @@ export const getUserHandler = async (req: Request, res: Response) => {
 
     res.status(200).json({
       status: "success",
-      data: users,
+      data: user,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't get single User", err.message);
   }
 };
 
@@ -120,58 +125,54 @@ export const updateUserHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
 
-    const users = await userRepository.findOneBy({
+    const user = await userRepository.findOneBy({
       id: req.params.id as any,
     });
 
-    if (!users) {
-      return responseErrors(res, 400, "User not found");
+    if (!user || user.id == 1) {
+      return responseErrors(res, 400, "User not found", "cannot find user");
     }
 
-    if (users.id == 1) {
-      return responseErrors(res, 400, "User not found");
-    }
-
-    users.photo_url = input.photo_url;
-    users.email = input.email;
-    users.name = input.name;
-    users.remark = input.remark;
-    users.tel = input.tel;
-    users.photo_url = input.photo_url;
+    user.photo_url = input.photo_url;
+    user.email = input.email;
+    user.name = input.name;
+    user.remark = input.remark;
+    user.tel = input.tel;
+    user.photo_url = input.photo_url;
 
     if (input.password && input.password !== "") {
-      users.password = await bcrypt.hash(input.password, 12);
+      user.password = await bcrypt.hash(input.password, 12);
     }
 
-    const updatedUsers = await userRepository.save(users);
+    const updatedUsers = await userRepository.save(user);
 
     res.status(200).json({
       status: "success",
       data: updatedUsers,
     });
   } catch (err: any) {
-    console.log(err);
-
-    return responseErrors(res, 400, "Can't update your user");
+    return responseErrors(res, 400, "Can't update your User", err.message);
   }
 };
 
 export const deleteUserHandler = async (req: Request, res: Response) => {
   try {
-    const users = await userRepository.findOneBy({
+    const user = await userRepository.findOneBy({
       id: req.params.id as any,
     });
 
-    if (!users) {
-      return responseErrors(res, 400, "User not found");
+    if (!user) {
+      return responseErrors(res, 400, "User not found", "cannot find user");
     }
+
+    await deskRepository.delete(user.id); //FIXME
 
     res.status(204).json({
       status: "success",
       data: null,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, "Can't delete your user");
+    return responseErrors(res, 400, "Can't delete your User", err.message);
   }
 };
 
