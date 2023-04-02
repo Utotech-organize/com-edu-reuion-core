@@ -9,38 +9,10 @@ import {
   statusPending,
 } from "../utils/common";
 import { Customers } from "../entities/customer.entity";
-import { updateDeskHandler } from "./desk.controller";
 
 const chairRepository = AppDataSource.getRepository(Chairs);
 const deskRepository = AppDataSource.getRepository(Desks);
 const customerRepository = AppDataSource.getRepository(Customers);
-
-// export const getAllPretestWithLessionIDHandler = async ( //FIXME get all chair with desk
-//   req: Request,
-//   res: Response
-// ) => {
-//   try {
-//     const pretest = await pretestRepository
-//       .createQueryBuilder("pretest")
-//       .where("lession_id = :lession_id", {
-//         lession_id: req.params.postId as any,
-//       })
-//       .getMany();
-
-//     if (!pretest) {
-//       return responseErrors(res, 400, "pretest not found");
-//     }
-
-//     res.status(200).json({
-//       status: "success",
-//       data: {
-//         pretest,
-//       },
-//     });
-//   } catch (err: any) {
-//     return responseErrors(res, 400, err);
-//   }
-// };
 
 export const createCustomerHandler = async (req: Request, res: Response) => {
   try {
@@ -97,39 +69,6 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
       );
     }
     return responseErrors(res, 400, "Can't create Customer", err.message);
-  }
-};
-
-export const updateChairWithCustomer = async (
-  res: Response,
-  chair_id: number,
-  customer_id: number,
-  customer_name: string
-) => {
-  try {
-    const chair = await chairRepository.findOneBy({
-      id: chair_id,
-      status: statusAvailable,
-    });
-
-    if (!chair) {
-      return responseErrors(
-        res,
-        400,
-        "Chair not found",
-        "chair is not available"
-      );
-    }
-
-    chair.status = statusPending;
-    chair.customer_id = customer_id;
-    chair.customer_name = customer_name;
-
-    const updatedChair = await chairRepository.save(chair);
-
-    return updatedChair;
-  } catch (err: any) {
-    return responseErrors(res, 400, "Can't booked your Chair", err.message);
   }
 };
 
@@ -211,11 +150,11 @@ export const updateCustomerHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
 
-    const users = await customerRepository.findOneBy({
+    const customer = await customerRepository.findOneBy({
       id: req.params.id as any,
     });
 
-    if (!users) {
+    if (!customer) {
       return responseErrors(
         res,
         400,
@@ -224,12 +163,17 @@ export const updateCustomerHandler = async (req: Request, res: Response) => {
       );
     }
 
-    users.name = input.name;
-    users.information = input.information;
-    users.email = input.email;
-    users.status = input.status;
+    customer.name = input.name;
+    customer.information = input.information;
+    customer.email = input.email;
+    customer.status = input.status;
 
-    const updatedCustomer = await customerRepository.save(users);
+    if (input.chairs) {
+      input.chairs.forEach((chair_id: any) => {
+        updateChairWithCustomer(res, chair_id, customer.id, customer.name);
+      });
+    }
+    const updatedCustomer = await customerRepository.save(customer);
 
     res.status(200).json({
       status: "success",
@@ -263,5 +207,38 @@ export const deleteCustomerHandler = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     return responseErrors(res, 400, "Can't delete your Customer", err.message);
+  }
+};
+
+export const updateChairWithCustomer = async (
+  res: Response,
+  chair_id: number,
+  customer_id: number,
+  customer_name: string
+) => {
+  try {
+    const chair = await chairRepository.findOneBy({
+      id: chair_id,
+      status: statusAvailable,
+    });
+
+    if (!chair) {
+      return responseErrors(
+        res,
+        400,
+        "Chair not found",
+        "chair is not available"
+      );
+    }
+
+    chair.status = statusPending;
+    chair.customer_id = customer_id;
+    chair.customer_name = customer_name;
+
+    const updatedChair = await chairRepository.save(chair);
+
+    return updatedChair;
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't booked your Chair", err.message);
   }
 };

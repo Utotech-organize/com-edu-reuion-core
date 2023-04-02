@@ -17,7 +17,7 @@ router.use(verifyJwt);
 router.post("/register", registerUserHandler);
 router.route("/").get(getAllUsersHandler);
 router.route("/:id").get(getUserHandler);
-router.route("/edit/:id").get(updateUserHandler);
-router.route("/delete/:id").get(updateUserHandler);
+router.route("/edit/:id").put(updateUserHandler);
+router.route("/delete/:id").delete(updateUserHandler);
 
 export default router;

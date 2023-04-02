@@ -33,7 +33,7 @@ router.route("/desks/delete/:id").delete(deleteDeskHandler);
 router.post("/chairs/new", createChairHandler);
 router.route("/chairs/").get(getAllChairsHandler);
 router.route("/chairs/:id").get(getChairHandler);
-router.route("/chairs/edit/:id").get(updateChairHandler);
-router.route("/chairs/delete/:id").get(deleteChairHandler);
+router.route("/chairs/edit/:id").put(updateChairHandler);
+router.route("/chairs/delete/:id").delete(deleteChairHandler);
 
 export default router;
