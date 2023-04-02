@@ -17,7 +17,7 @@ export const getMeHandler = async (req: Request, res: Response) => {
       },
     });
   } catch (err: any) {
-    return responseErrors(res, 400, "Can't get profile data");
+    return responseErrors(res, 400, "Can't get profile data", err.message);
   }
 };
 
@@ -27,11 +27,16 @@ export const loginUserHandler = async (req: Request, res: Response) => {
     const user = await userRepository.findOneBy({ email });
 
     if (!user) {
-      return responseErrors(res, 400, "Invalid email or password");
+      return responseErrors(res, 400, "User not found", "cannot find user");
     }
 
     if (!(await Users.comparePasswords(password, user.password))) {
-      return responseErrors(res, 400, "Invalid email or password");
+      return responseErrors(
+        res,
+        400,
+        "Please check your data or contact admin",
+        "Invalid email or password"
+      );
     }
 
     const access_token = signJwt({
@@ -56,6 +61,6 @@ export const logoutHandler = async (req: Request, res: Response) => {
       status: "success",
     });
   } catch (err: any) {
-    return responseErrors(res, 400, "Can't logout");
+    return responseErrors(res, 400, "Can't logout", err.message);
   }
 };

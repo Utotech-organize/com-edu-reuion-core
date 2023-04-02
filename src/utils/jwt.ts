@@ -40,3 +40,17 @@ export const verifyJwt = (req: any, res: Response, next: NextFunction) => {
 
   next();
 };
+
+// export const destroyJwt = (payload: Object) => {
+//   var privateKey = Buffer.from(
+//     config.get<string>("accessTokenPrivateKey"),
+//     "base64"
+//   ).toString("utf-8");
+
+//   const signInOptions: jwt.SignOptions = {
+//     algorithm: "RS256",
+//     expiresIn: "1",
+//   };
+
+//   return jwt.sign(payload, privateKey, signInOptions);
+// };
