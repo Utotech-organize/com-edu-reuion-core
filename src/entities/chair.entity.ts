@@ -12,7 +12,7 @@ export class Chairs extends Model {
   label!: string;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
   chair_no!: string;
 
