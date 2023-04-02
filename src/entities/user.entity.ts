@@ -38,9 +38,6 @@ export class Users extends Model {
   @Column({ nullable: true })
   photo_url!: string; //FIXME to base64 image
 
-  // @OneToMany(() => PretestResult, (preResult) => preResult.pretest) //FIXME relate with chair
-  // pretestResults!: PretestResult[];
-
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 12);

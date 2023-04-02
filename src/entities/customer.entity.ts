@@ -48,7 +48,4 @@ export class Customers extends Model {
 
   @Column({ nullable: true })
   line_photo_url!: string;
-
-  // @OneToMany(() => Chairs, (chair) => chair.id) //FIXME relate with chair
-  // chairs!: Chairs[];
 }
