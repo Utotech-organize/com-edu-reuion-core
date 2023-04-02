@@ -20,5 +20,5 @@ export class Chair extends Model {
 
   @ManyToOne(() => Desk, (desk) => desk.chair)
   @JoinColumn({ name: "desk_id" })
-  desk: Desk | undefined;
+  desk!: Desk;
 }
