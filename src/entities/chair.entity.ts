@@ -12,6 +12,11 @@ export class Chairs extends Model {
   label!: string;
 
   @Column({
+    nullable: false,
+  })
+  chair_no!: string;
+
+  @Column({
     default: statusAvailable,
     nullable: false,
   })

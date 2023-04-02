@@ -16,7 +16,6 @@ const customerRepository = AppDataSource.getRepository(Customers);
 
 export const createCustomerHandler = async (req: Request, res: Response) => {
   try {
-    // const userId = req.user.id;
     const input = req.body;
     const chairs = input.chairs;
 
@@ -105,24 +104,28 @@ export const getAllCustomersHandler = async (req: Request, res: Response) => {
 
 export const getCustomerHandler = async (req: Request, res: Response) => {
   try {
+    const id = req.params.id;
+    // const line_liff_id = req.params.line_liff_id;
+    // const phone = req.params.phone;
+
     const customer = await customerRepository
       .createQueryBuilder("customers")
       .select([
-        "customer.id AS id",
-        "customer.created_at AS created_at",
-        "customer.updated_at AS updated_at",
-        "customer.deleted_at AS deleted_at",
-        "customer.tel AS tel",
-        "customer.name AS name",
-        "customer.status AS status",
-        "customer.information AS information",
-        "customer.email AS email",
-        "customer.role AS role",
-        "customer.line_liff_id AS line_liff_id",
-        "customer.line_display_name AS line_display_name",
-        "customer.line_photo_url AS line_photo_url",
+        "customers.id AS id",
+        "customers.created_at AS created_at",
+        "customers.updated_at AS updated_at",
+        "customers.deleted_at AS deleted_at",
+        "customers.tel AS tel",
+        "customers.name AS name",
+        "customers.status AS status",
+        "customers.information AS information",
+        "customers.email AS email",
+        "customers.role AS role",
+        "customers.line_liff_id AS line_liff_id",
+        "customers.line_display_name AS line_display_name",
+        "customers.line_photo_url AS line_photo_url",
       ])
-      .where("customers.id = :id", { id: req.params.id })
+      .where("customers.id = :id", { id: id })
       .getRawOne();
 
     if (!customer) {
