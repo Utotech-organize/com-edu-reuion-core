@@ -7,7 +7,6 @@ import bcrypt from "bcryptjs";
 
 const userRepository = AppDataSource.getRepository(Users);
 const deskRepository = AppDataSource.getRepository(Desks);
-// const pretestResultRepository = AppDataSource.getRepository(PretestResult);
 
 export const registerUserHandler = async (req: Request, res: Response) => {
   try {

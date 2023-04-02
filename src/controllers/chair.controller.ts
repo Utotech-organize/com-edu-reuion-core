@@ -110,6 +110,7 @@ export const getChairHandler = async (req: Request, res: Response) => {
 
 export const updateChairHandler = async (req: Request, res: Response) => {
   try {
+    const userId = req.user.id;
     const input = req.body;
 
     const chair = await chairRepository.findOneBy({
