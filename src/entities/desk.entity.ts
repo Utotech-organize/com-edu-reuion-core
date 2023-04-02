@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import Model from "./model.entity";
-import { Chair } from "./chair.entity";
+import { Chairs } from "./chair.entity";
 
-@Entity("desk")
-export class Desk extends Model {
+@Entity("desks")
+export class Desks extends Model {
   @Column({ default: true })
   active!: boolean;
 
@@ -13,6 +13,6 @@ export class Desk extends Model {
   @Column()
   status!: string;
 
-  @OneToMany(() => Chair, (chair) => chair.id)
-  chair!: Chair[];
+  @OneToMany(() => Chairs, (chair) => chair.id)
+  chairs!: Chairs[];
 }

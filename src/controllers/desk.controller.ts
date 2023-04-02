@@ -1,50 +1,75 @@
 import { Request, Response } from "express";
-import { Desk } from "../entities/desk.entity";
+import { Desks } from "../entities/desk.entity";
 
 import { AppDataSource } from "../utils/data-source";
 import { responseErrors } from "../utils/common";
+import { Chairs } from "../entities/chair.entity";
 
-const deskRepository = AppDataSource.getRepository(Desk);
+const deskRepository = AppDataSource.getRepository(Desks);
+const chairRepository = AppDataSource.getRepository(Chairs);
 
 export const createDeskHandler = async (req: Request, res: Response) => {
   try {
     // const userId = req.user.id;
     const input = req.body;
 
-    const newDesk = await deskRepository.save(
-      deskRepository.create({
-        active: input.active,
-        label: input.label,
-        status: input.status,
-      })
-    );
+    let new_desk = {
+      active: input.active,
+      label: input.label,
+      status: input.status,
+    } as Desks;
 
-    await newDesk.save();
+    const desks = await deskRepository.save(new_desk);
+
+    let chairs;
+
+    let input_chairs: any = input.chairs;
+    let new_chairs: Chairs[] = [];
+
+    for (var i of input_chairs) {
+      let chairTemp = {
+        label: i.label,
+        status: i.status,
+        price: i.price,
+        desk: {
+          id: desks.id,
+        } as Desks,
+      } as Chairs;
+
+      new_chairs.push(chairTemp);
+    }
+
+    chairs = await chairRepository.save(new_chairs);
+
+    desks!.chairs = chairs as Chairs[];
+
+    await desks.save();
 
     try {
       res.status(200).json({
         status: "create success",
-        id: newDesk.id,
+        id: desks.id,
         message: "Desk has been created",
-        data: newDesk,
+        data: desks,
       });
-    } catch (error) {
-      return res.status(500).json({
-        status: "error",
-        message: {
-          title: "There was an error to create, please try again",
-          error: error,
-        },
-      });
+    } catch (err: any) {
+      return responseErrors(
+        res,
+        500,
+        "There was an error to create, please try again",
+        err.message
+      );
     }
   } catch (err: any) {
     if (err.code === "23505") {
-      return res.status(409).json({
-        status: "fail",
-        message: "Desk with that tel and liff_id already exist",
-      });
+      return responseErrors(
+        res,
+        409,
+        "Desk with that id already exist",
+        err.message
+      );
     }
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't create desk", err.message);
   }
 };
 
@@ -69,7 +94,7 @@ export const getAllDesksHandler = async (req: Request, res: Response) => {
       data: desks,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't get all desk", err.message);
   }
 };
 
@@ -90,7 +115,7 @@ export const getDeskHandler = async (req: Request, res: Response) => {
       .getRawOne();
 
     if (!Desk) {
-      return responseErrors(res, 400, "Desks not found");
+      return responseErrors(res, 400, "Desks not found", "cannot find desk");
     }
 
     // const lss = await getLessionByUser(+req.params.postId);
@@ -101,7 +126,7 @@ export const getDeskHandler = async (req: Request, res: Response) => {
       data: Desk,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't get single desk", err.message);
   }
 };
 
@@ -114,7 +139,7 @@ export const updateDeskHandler = async (req: Request, res: Response) => {
     });
 
     if (!desk) {
-      return responseErrors(res, 400, "Desk not found");
+      return responseErrors(res, 400, "Desks not found", "cannot find desk");
     }
 
     desk.active = input.active;
@@ -128,9 +153,7 @@ export const updateDeskHandler = async (req: Request, res: Response) => {
       data: updatedDesk,
     });
   } catch (err: any) {
-    console.log(err);
-
-    return responseErrors(res, 400, "Can't update your Desk");
+    return responseErrors(res, 400, "Can't update your Desk", err.message);
   }
 };
 
@@ -141,7 +164,7 @@ export const deleteDeskHandler = async (req: Request, res: Response) => {
     });
 
     if (!desk) {
-      return responseErrors(res, 400, "Desk not found");
+      return responseErrors(res, 400, "Desks not found", "cannot find desk");
     }
 
     await deskRepository.delete(desk.id); //FIXME
@@ -151,7 +174,7 @@ export const deleteDeskHandler = async (req: Request, res: Response) => {
       data: null,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, "Can't delete your Desk");
+    return responseErrors(res, 400, "Can't delete your Desk", err.message);
   }
 };
 

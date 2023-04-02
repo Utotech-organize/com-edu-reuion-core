@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { Desk } from "../entities/desk.entity";
-import { Chair } from "../entities/chair.entity";
+import { Desks } from "../entities/desk.entity";
+import { Chairs } from "../entities/chair.entity";
 
 import { AppDataSource } from "../utils/data-source";
 import { responseErrors } from "../utils/common";
 
-const chairRepository = AppDataSource.getRepository(Chair);
+const chairRepository = AppDataSource.getRepository(Chairs);
 
 export const createChairHandler = async (req: Request, res: Response) => {
   try {
@@ -29,23 +29,24 @@ export const createChairHandler = async (req: Request, res: Response) => {
         message: "Chair has been created",
         data: newChair,
       });
-    } catch (error) {
-      return res.status(500).json({
-        status: "error",
-        message: {
-          title: "There was an error to create, please try again",
-          error: error,
-        },
-      });
+    } catch (err: any) {
+      return responseErrors(
+        res,
+        500,
+        "There was an error to create, please try again",
+        err.message
+      );
     }
   } catch (err: any) {
     if (err.code === "23505") {
-      return res.status(409).json({
-        status: "fail",
-        message: "Chair with that tel and liff_id already exist",
-      });
+      return responseErrors(
+        res,
+        409,
+        "Chair with that id already exist",
+        err.message
+      );
     }
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't create Chair", err.message);
   }
 };
 
@@ -70,7 +71,7 @@ export const getAllChairsHandler = async (req: Request, res: Response) => {
       data: chairs,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't get all Chair", err.message);
   }
 };
 
@@ -91,7 +92,7 @@ export const getChairHandler = async (req: Request, res: Response) => {
       .getRawOne();
 
     if (!chair) {
-      return responseErrors(res, 400, "Chairs not found");
+      return responseErrors(res, 400, "Chair not found", "cannot find chair");
     }
 
     // const lss = await getLessionByUser(+req.params.postId);
@@ -102,7 +103,7 @@ export const getChairHandler = async (req: Request, res: Response) => {
       data: chair,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't get single Chair", err.message);
   }
 };
 
@@ -115,7 +116,7 @@ export const updateChairHandler = async (req: Request, res: Response) => {
     });
 
     if (!chair) {
-      return responseErrors(res, 400, "Chair not found");
+      return responseErrors(res, 400, "Chair not found", "cannot find chair");
     }
 
     // chairs.name = input.name;
@@ -130,9 +131,7 @@ export const updateChairHandler = async (req: Request, res: Response) => {
       data: updatedChair,
     });
   } catch (err: any) {
-    console.log(err);
-
-    return responseErrors(res, 400, "Can't update your Chair");
+    return responseErrors(res, 400, "Can't update your Chair", err.message);
   }
 };
 
@@ -143,7 +142,7 @@ export const deleteChairHandler = async (req: Request, res: Response) => {
     });
 
     if (!chair) {
-      return responseErrors(res, 400, "Chair not found");
+      return responseErrors(res, 400, "Chair not found", "cannot find chair");
     }
 
     await chairRepository.delete(chair.id); //FIXME
@@ -153,6 +152,6 @@ export const deleteChairHandler = async (req: Request, res: Response) => {
       data: null,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, "Can't delete your Chair");
+    return responseErrors(res, 400, "Can't delete your Chair", err.message);
   }
 };

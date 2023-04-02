@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { signJwt } from "../utils/jwt";
-import { User } from "../entities/user.entity";
+import { Users } from "../entities/user.entity";
 import { AppDataSource } from "../utils/data-source";
 import { responseErrors } from "../utils/common";
 
-const userRepository = AppDataSource.getRepository(User);
+const userRepository = AppDataSource.getRepository(Users);
 
 export const getMeHandler = async (req: Request, res: Response) => {
   try {
@@ -30,7 +30,7 @@ export const loginUserHandler = async (req: Request, res: Response) => {
       return responseErrors(res, 400, "Invalid email or password");
     }
 
-    if (!(await User.comparePasswords(password, user.password))) {
+    if (!(await Users.comparePasswords(password, user.password))) {
       return responseErrors(res, 400, "Invalid email or password");
     }
 

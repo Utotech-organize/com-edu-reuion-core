@@ -12,7 +12,7 @@ import customerRouter from "./routes/customer.routes";
 // import lessionRouter from "./routes/booking.routes";
 
 import validateEnv from "./utils/validateEnv";
-import { User } from "./entities/user.entity";
+import { Users } from "./entities/user.entity";
 import { responseErrors } from "./utils/common";
 
 AppDataSource.initialize()
@@ -33,16 +33,17 @@ AppDataSource.initialize()
       cors({
         origin: "*",
         credentials: false,
+        methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
       })
     );
 
     // 5. Create super admin
-    const userRepository = AppDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(Users);
     const user = await userRepository.find();
 
     if (user.length === 0) {
       console.log("Inserting a new super admin into the database...");
-      const user = new User();
+      const user = new Users();
       user.email = process.env.SUPER_ADMIN_EMAIL ?? "";
       user.password = process.env.SUPER_ADMIN_PASSWORD ?? "";
       user.name = "super admin";
@@ -70,7 +71,12 @@ AppDataSource.initialize()
 
     // UNHANDLED ROUTE
     app.all("*", (req: Request, res: Response, next: NextFunction) => {
-      return responseErrors(res, 400, `Route ${req.originalUrl} not found`);
+      return responseErrors(
+        res,
+        404,
+        "error route not found",
+        `Route ${req.originalUrl} not found`
+      );
     });
 
     const port = config.get<number>("port");

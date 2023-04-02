@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import { Desk } from "../entities/desk.entity";
-import { Chair } from "../entities/chair.entity";
+import { Desks } from "../entities/desk.entity";
+import { Chairs } from "../entities/chair.entity";
 
 import { AppDataSource } from "../utils/data-source";
 import { responseErrors } from "../utils/common";
-import { Customer } from "../entities/customer.entity";
+import { Customers } from "../entities/customer.entity";
 
-const chairRepository = AppDataSource.getRepository(Chair);
-const deskRepository = AppDataSource.getRepository(Desk);
-const customerRepository = AppDataSource.getRepository(Customer);
+const chairRepository = AppDataSource.getRepository(Chairs);
+const deskRepository = AppDataSource.getRepository(Desks);
+const customerRepository = AppDataSource.getRepository(Customers);
 
 // export const getAllPretestWithLessionIDHandler = async ( //FIXME get all chair with desk
 //   req: Request,
@@ -64,23 +64,24 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
         message: "Customer has been created",
         data: newCustomer,
       });
-    } catch (error) {
-      return res.status(500).json({
-        status: "error",
-        message: {
-          title: "There was an error to create, please try again",
-          error: error,
-        },
-      });
+    } catch (err: any) {
+      return responseErrors(
+        res,
+        500,
+        "There was an error to create, please try again",
+        err.message
+      );
     }
   } catch (err: any) {
     if (err.code === "23505") {
-      return res.status(409).json({
-        status: "fail",
-        message: "Customer with that tel and liff_id already exist",
-      });
+      return responseErrors(
+        res,
+        409,
+        "Customer with that tel and liff_id already exist",
+        err.message
+      );
     }
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't create Customer", err.message);
   }
 };
 
@@ -111,7 +112,7 @@ export const getAllCustomersHandler = async (req: Request, res: Response) => {
       data: customers,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't get all Customer", err.message);
   }
 };
 
@@ -138,7 +139,12 @@ export const getCustomerHandler = async (req: Request, res: Response) => {
       .getRawOne();
 
     if (!customer) {
-      return responseErrors(res, 400, "Customers not found");
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
     }
 
     // const lss = await getLessionByUser(+req.params.postId);
@@ -149,7 +155,7 @@ export const getCustomerHandler = async (req: Request, res: Response) => {
       data: customer,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, err);
+    return responseErrors(res, 400, "Can't get single Customer", err.message);
   }
 };
 
@@ -162,7 +168,12 @@ export const updateCustomerHandler = async (req: Request, res: Response) => {
     });
 
     if (!users) {
-      return responseErrors(res, 400, "Customer not found");
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
     }
 
     users.name = input.name;
@@ -177,9 +188,7 @@ export const updateCustomerHandler = async (req: Request, res: Response) => {
       data: updatedCustomer,
     });
   } catch (err: any) {
-    console.log(err);
-
-    return responseErrors(res, 400, "Can't update your customer");
+    return responseErrors(res, 400, "Can't update your Customer", err.message);
   }
 };
 
@@ -190,7 +199,12 @@ export const deleteCustomerHandler = async (req: Request, res: Response) => {
     });
 
     if (!customer) {
-      return responseErrors(res, 400, "Customer not found");
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
     }
 
     await deskRepository.delete(customer.id); //FIXME
@@ -200,6 +214,6 @@ export const deleteCustomerHandler = async (req: Request, res: Response) => {
       data: null,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, "Can't delete your customer");
+    return responseErrors(res, 400, "Can't delete your Customer", err.message);
   }
 };
