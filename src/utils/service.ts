@@ -39,3 +39,11 @@ export const uploadFileToGoogleDrive = async (file: any, user: any) => {
     return error;
   }
 };
+
+export const uploadFileToBase64 = async (file: any) => {
+  let base64data = file.buffer.toString("base64");
+
+  // console.log(base64data);
+
+  return base64data;
+};
