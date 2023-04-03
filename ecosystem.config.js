@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "cer-core",
+      name: "com-edu-reunion-core",
       script: "yarn",
       automation: false,
       args: "run dev",
