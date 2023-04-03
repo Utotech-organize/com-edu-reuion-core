@@ -1,7 +1,11 @@
-# Awesome Project Build with TypeORM
+# Com Edu Reunion Project part "Core"
 
 Steps to run this project:
 
-1. Run `npm i` command
-2. Setup database settings inside `data-source.ts` file
-3. Run `npm start` command
+first copy **.env.example** file and create to **.env**
+
+1. Run `yarn install` command to install dependencies
+2. Run `make dev` command to start DB
+3. Run `yarn run dev` command to start server
+
+---

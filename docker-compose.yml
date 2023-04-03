@@ -1,0 +1,12 @@
+version: "3.4"
+services:
+  postgres:
+    image: postgres:latest
+    container_name: com-edu-reunion
+    ports:
+      - ${POSTGRES_PORT}:5432
+    env_file:
+      - ./.env
+
+volumes:
+  data: {}
