@@ -9,7 +9,6 @@ import {
   statusPending,
 } from "../utils/common";
 import { Customers } from "../entities/customer.entity";
-import { Repository } from "typeorm";
 
 const chairRepository = AppDataSource.getRepository(Chairs);
 const deskRepository = AppDataSource.getRepository(Desks);
@@ -107,7 +106,6 @@ export const getCustomerHandler = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     const line_liff_id = req.query.line_liff_id;
-    const tel = req.query.tel;
     let customer;
 
     const customerResponse = [
@@ -134,14 +132,6 @@ export const getCustomerHandler = async (req: Request, res: Response) => {
           .where("customers.line_liff_id = :line_liff_id", {
             line_liff_id: line_liff_id,
           })
-          .getRawOne();
-      }
-
-      if (tel) {
-        customer = await customerRepository
-          .createQueryBuilder("customers")
-          .select(customerResponse)
-          .where("customers.tel = :tel", { tel: tel })
           .getRawOne();
       }
     } else {

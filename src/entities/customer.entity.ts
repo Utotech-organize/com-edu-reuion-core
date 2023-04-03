@@ -4,9 +4,7 @@ import { Chairs } from "./chair.entity";
 
 @Entity("customers")
 export class Customers extends Model {
-  @Index("tel_index")
   @Column({
-    unique: true,
     nullable: false,
   })
   tel!: string;
