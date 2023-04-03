@@ -4,9 +4,11 @@ import {
   getAllUsersHandler,
   getUserHandler,
   registerUserHandler,
+  updateReceiptByUser,
   updateUserHandler,
 } from "../controllers/user.controller";
 import { verifyJwt } from "../utils/jwt";
+import { uploadFilter } from "../utils/common";
 
 const router = express.Router();
 
@@ -18,6 +20,8 @@ router.post("/register", registerUserHandler);
 router.route("/").get(getAllUsersHandler);
 router.route("/:id").get(getUserHandler);
 router.route("/edit/:id").put(updateUserHandler);
-router.route("/delete/:id").delete(updateUserHandler);
+router.route("/delete/:id").delete(deleteUserHandler);
+
+router.route("/upload").post(uploadFilter.single("file"), updateReceiptByUser);
 
 export default router;

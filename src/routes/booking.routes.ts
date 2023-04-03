@@ -4,6 +4,7 @@ import { verifyJwt } from "../utils/jwt";
 import {
   createChairHandler,
   deleteChairHandler,
+  generateQrcodeWithChairID,
   getAllChairsHandler,
   getAllChairsWithDeskIDHandler,
   getChairHandler,
@@ -35,5 +36,7 @@ router.route("/chairs/").get(getAllChairsHandler);
 router.route("/chairs/:id").get(getChairHandler);
 router.route("/chairs/edit/:id").put(updateChairWithUserHandler);
 router.route("/chairs/delete/:id").delete(deleteChairHandler);
+
+router.route("/chairs/qrcode").get(generateQrcodeWithChairID);
 
 export default router;

@@ -10,10 +10,10 @@ import {
 } from "../utils/common";
 import { AppDataSource } from "../utils/data-source";
 import bcrypt from "bcryptjs";
+import { uploadFileToGoogleDrive } from "../utils/service";
 
 const userRepository = AppDataSource.getRepository(Users);
 const deskRepository = AppDataSource.getRepository(Desks);
-const chairRepository = AppDataSource.getRepository(Chairs);
 
 export const registerUserHandler = async (req: Request, res: Response) => {
   try {
@@ -176,6 +176,34 @@ export const deleteUserHandler = async (req: Request, res: Response) => {
     res.status(204).json({
       status: "success",
       data: null,
+    });
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't delete your User", err.message);
+  }
+};
+
+export const updateReceiptByUser = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const file = req.file!;
+
+    const user = await userRepository.findOneBy({
+      id: userId,
+    });
+
+    if (!user) {
+      return responseErrors(res, 400, "User not found", "cannot find user");
+    }
+
+    const imageID = await uploadFileToGoogleDrive(file, user);
+
+    const response = {
+      imageID,
+    };
+
+    res.status(200).json({
+      status: "success",
+      data: response,
     });
   } catch (err: any) {
     return responseErrors(res, 400, "Can't delete your User", err.message);

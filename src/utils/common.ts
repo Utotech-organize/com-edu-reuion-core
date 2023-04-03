@@ -1,4 +1,5 @@
 import { Response } from "express";
+import multer from "multer";
 
 export const statusAvailable = "available";
 export const statusPending = "pending";
@@ -50,3 +51,17 @@ export function removeValue(value: any, index: any, arr: any) {
   }
   return false;
 }
+
+export const storage = multer.memoryStorage();
+export const uploadFilter = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5, // 5 MB
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed"));
+    }
+    cb(null, true);
+  },
+});
