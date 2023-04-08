@@ -17,6 +17,7 @@ export const createDeskHandler = async (req: Request, res: Response) => {
       active: input.active,
       label: input.label,
       status: input.status,
+      price: input.price,
     } as Desks;
 
     const desks = await deskRepository.save(new_desk);

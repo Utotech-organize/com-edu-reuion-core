@@ -118,7 +118,7 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
 export const getAllCustomersHandler = async (req: Request, res: Response) => {
   try {
     const customers = await customerRepository
-      .createQueryBuilder("customer")
+      .createQueryBuilder("customers")
       .select(selectCustomerColumn)
       .getRawMany();
 
