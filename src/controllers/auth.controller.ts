@@ -23,25 +23,54 @@ export const getMeHandler = async (req: Request, res: Response) => {
   }
 };
 
-// export const getLiffMeHandler = async (req: Request, res: Response) => {
-//   try {
-//     const liff = await customerRepository.findOneBy({
-//       line_liff_id: req.user.id,
-//     });
+export const getLiffMeHandler = async (req: Request, res: Response) => {
+  try {
+    const liff = await customerRepository.findOneBy({
+      line_liff_id: req.user.id,
+    });
 
-//     res
-//       .status(200)
-//       .status(200)
-//       .json({
-//         status: "success",
-//         data: {
-//           user: liff,
-//         },
-//       });
-//   } catch (err: any) {
-//     return responseErrors(res, 400, "Can't get liff profile data", err.message);
-//   }
-// };
+    res
+      .status(200)
+      .status(200)
+      .json({
+        status: "success",
+        data: {
+          user: liff,
+        },
+      });
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't get liff profile data", err.message);
+  }
+};
+
+export const loginCustomerWithLiffHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { liff: liffID } = req.body;
+    const customer = await customerRepository.findOneBy(liffID);
+
+    if (!customer) {
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
+    }
+
+    const access_token = signJwt({
+      id: customer.id,
+      liff_id: customer.line_liff_id,
+    });
+
+    res.status(200).json({
+      status: "success",
+      access_token,
+    });
+  } catch (err: any) {}
+};
 
 export const loginUserHandler = async (req: Request, res: Response) => {
   try {
