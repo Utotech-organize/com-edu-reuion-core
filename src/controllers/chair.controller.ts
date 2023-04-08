@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { Desks } from "../entities/desk.entity";
 import { Chairs } from "../entities/chair.entity";
 
 import { AppDataSource } from "../utils/data-source";
@@ -220,26 +219,5 @@ export const deleteChairHandler = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     return responseErrors(res, 400, "Can't delete your Chair", err.message);
-  }
-};
-
-export const generateQrcodeWithChairID = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const qrcode = await qrcodeGenerator(req.params.id);
-
-    res.status(200).json({
-      status: "success",
-      data: qrcode,
-    });
-  } catch (err: any) {
-    return responseErrors(
-      res,
-      400,
-      "Can't generate your Chair qrcode",
-      err.message
-    );
   }
 };
