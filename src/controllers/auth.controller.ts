@@ -3,8 +3,10 @@ import { signJwt } from "../utils/jwt";
 import { Users } from "../entities/user.entity";
 import { AppDataSource } from "../utils/data-source";
 import { responseErrors } from "../utils/common";
+import { Customers } from "../entities/customer.entity";
 
 const userRepository = AppDataSource.getRepository(Users);
+const customerRepository = AppDataSource.getRepository(Customers);
 
 export const getMeHandler = async (req: Request, res: Response) => {
   try {
@@ -20,6 +22,26 @@ export const getMeHandler = async (req: Request, res: Response) => {
     return responseErrors(res, 400, "Can't get profile data", err.message);
   }
 };
+
+// export const getLiffMeHandler = async (req: Request, res: Response) => {
+//   try {
+//     const liff = await customerRepository.findOneBy({
+//       line_liff_id: req.user.id,
+//     });
+
+//     res
+//       .status(200)
+//       .status(200)
+//       .json({
+//         status: "success",
+//         data: {
+//           user: liff,
+//         },
+//       });
+//   } catch (err: any) {
+//     return responseErrors(res, 400, "Can't get liff profile data", err.message);
+//   }
+// };
 
 export const loginUserHandler = async (req: Request, res: Response) => {
   try {
