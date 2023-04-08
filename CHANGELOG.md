@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.4](https://github.com/Tweed-tech/com-edu-reuion-core/compare/v0.0.3...v0.0.4) (2023-04-08)
+
+
+### Features
+
+* **bookings:** added booking table and refactor customer ([c8de9b4](https://github.com/Tweed-tech/com-edu-reuion-core/commit/c8de9b447bc8d19052d65ae813e8a99c7b106430))
+* **bookings:** added bookings and change chair and desk api ([4567004](https://github.com/Tweed-tech/com-edu-reuion-core/commit/45670047b67b0557dff10b7e091fc6250cb9e0cc))
+
 ### [0.0.3](https://github.com/Tweed-tech/com-edu-reuion-core/compare/v0.0.2...v0.0.3) (2023-04-08)
 
 
