@@ -14,6 +14,24 @@ const chairRepository = AppDataSource.getRepository(Chairs);
 const deskRepository = AppDataSource.getRepository(Desks);
 const customerRepository = AppDataSource.getRepository(Customers);
 
+const selectCustomerColumn = [
+  "customers.id AS id",
+  "customers.created_at AS created_at",
+  "customers.updated_at AS updated_at",
+  "customers.deleted_at AS deleted_at",
+  "customers.tel AS tel",
+  "customers.firstname AS firstname",
+  "customers.lastname AS lastname",
+  "customers.generation AS generation",
+  "customers.status AS status",
+  "customers.information AS information",
+  "customers.email AS email",
+  "customers.role AS role",
+  "customers.line_liff_id AS line_liff_id",
+  "customers.line_display_name AS line_display_name",
+  "customers.line_photo_url AS line_photo_url",
+];
+
 export const createCustomerHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
@@ -24,7 +42,8 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
       line_display_name: input.line_display_name,
       line_photo_url: input.line_photo_url,
       tel: input.tel,
-      name: input.name,
+      first_name: input.first_name,
+      last_name: input.last_name,
       information: input.information,
       email: input.email,
       status: "unpaid",
@@ -38,7 +57,7 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
           res,
           chair_id,
           newCustomer.id,
-          newCustomer.name
+          newCustomer.first_name
         );
       });
     }
@@ -75,21 +94,7 @@ export const getAllCustomersHandler = async (req: Request, res: Response) => {
   try {
     const customers = await customerRepository
       .createQueryBuilder("customer")
-      .select([
-        "customer.id AS id",
-        "customer.created_at AS created_at",
-        "customer.updated_at AS updated_at",
-        "customer.deleted_at AS deleted_at",
-        "customer.tel AS tel",
-        "customer.name AS name",
-        "customer.status AS status",
-        "customer.information AS information",
-        "customer.email AS email",
-        "customer.role AS role",
-        "customer.line_liff_id AS line_liff_id",
-        "customer.line_display_name AS line_display_name",
-        "customer.line_photo_url AS line_photo_url",
-      ])
+      .select(selectCustomerColumn)
       .getRawMany();
 
     res.status(200).json({
@@ -109,25 +114,9 @@ export const getCustomerByLiffIDHandler = async (
   try {
     const liffID = req.headers.token;
 
-    const customerResponse = [
-      "customers.id AS id",
-      "customers.created_at AS created_at",
-      "customers.updated_at AS updated_at",
-      "customers.deleted_at AS deleted_at",
-      "customers.tel AS tel",
-      "customers.name AS name",
-      "customers.status AS status",
-      "customers.information AS information",
-      "customers.email AS email",
-      "customers.role AS role",
-      "customers.line_liff_id AS line_liff_id",
-      "customers.line_display_name AS line_display_name",
-      "customers.line_photo_url AS line_photo_url",
-    ];
-
     const customer = await customerRepository
       .createQueryBuilder("customers")
-      .select(customerResponse)
+      .select(selectCustomerColumn)
       .where("customers.line_liff_id = :line_liff_id", {
         line_liff_id: liffID,
       })
@@ -160,25 +149,9 @@ export const getCustomerHandler = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
 
-    const customerResponse = [
-      "customers.id AS id",
-      "customers.created_at AS created_at",
-      "customers.updated_at AS updated_at",
-      "customers.deleted_at AS deleted_at",
-      "customers.tel AS tel",
-      "customers.name AS name",
-      "customers.status AS status",
-      "customers.information AS information",
-      "customers.email AS email",
-      "customers.role AS role",
-      "customers.line_liff_id AS line_liff_id",
-      "customers.line_display_name AS line_display_name",
-      "customers.line_photo_url AS line_photo_url",
-    ];
-
     const customer = await customerRepository
       .createQueryBuilder("customers")
-      .select(customerResponse)
+      .select(selectCustomerColumn)
       .where("customers.id = :id", {
         id: id,
       })
@@ -219,14 +192,20 @@ export const updateCustomerHandler = async (req: Request, res: Response) => {
       );
     }
 
-    customer.name = input.name;
+    customer.first_name = input.first_name;
+    customer.last_name = input.last_name;
     customer.information = input.information;
     customer.email = input.email;
     customer.status = input.status;
 
     if (input.chairs) {
       input.chairs.forEach((chair_id: any) => {
-        updateChairWithCustomer(res, chair_id, customer.id, customer.name);
+        updateChairWithCustomer(
+          res,
+          chair_id,
+          customer.id,
+          customer.first_name
+        );
       });
     }
     const updatedCustomer = await customerRepository.save(customer);
@@ -270,7 +249,7 @@ export const updateChairWithCustomer = async (
   res: Response,
   chair_id: number,
   customer_id: number,
-  customer_name: string
+  customer_firstname: string
 ) => {
   try {
     const chair = await chairRepository.findOneBy({
@@ -289,7 +268,7 @@ export const updateChairWithCustomer = async (
 
     chair.status = statusPending;
     chair.customer_id = customer_id;
-    chair.customer_name = customer_name;
+    chair.customer_name = customer_firstname;
 
     const updatedChair = await chairRepository.save(chair);
 

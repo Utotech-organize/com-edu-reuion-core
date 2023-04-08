@@ -1,6 +1,7 @@
 import { Entity, Column, Index, BeforeInsert, OneToMany } from "typeorm";
 import Model from "./model.entity";
 import { Chairs } from "./chair.entity";
+import { Bookings } from "./booking.entity";
 
 @Entity("customers")
 export class Customers extends Model {
@@ -12,7 +13,17 @@ export class Customers extends Model {
   @Column({
     nullable: false,
   })
-  name!: string; // fistname and lastname
+  first_name!: string;
+
+  @Column({
+    nullable: false,
+  })
+  last_name!: string;
+
+  @Column({
+    nullable: false,
+  })
+  generation!: string;
 
   @Column({
     nullable: true,
@@ -46,4 +57,7 @@ export class Customers extends Model {
 
   @Column({ nullable: true })
   line_photo_url!: string;
+
+  @OneToMany(() => Bookings, (booking) => booking.customer)
+  bookings!: Bookings[];
 }
