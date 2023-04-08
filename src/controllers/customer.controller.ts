@@ -20,8 +20,8 @@ const selectCustomerColumn = [
   "customers.updated_at AS updated_at",
   "customers.deleted_at AS deleted_at",
   "customers.tel AS tel",
-  "customers.firstname AS firstname",
-  "customers.lastname AS lastname",
+  "customers.first_name AS first_name",
+  "customers.last_name AS last_name",
   "customers.generation AS generation",
   "customers.status AS status",
   "customers.information AS information",
@@ -35,39 +35,64 @@ const selectCustomerColumn = [
 export const createCustomerHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
-    const chairs = input.chairs;
+    // const chairs = input.chairs;
+    let customer;
+    let message;
 
-    let new_customer = {
-      line_liff_id: input.line_liff_id,
-      line_display_name: input.line_display_name,
-      line_photo_url: input.line_photo_url,
-      tel: input.tel,
-      first_name: input.first_name,
-      last_name: input.last_name,
-      information: input.information,
-      email: input.email,
-      status: "unpaid",
-    } as Customers;
+    const ct = await customerRepository
+      .createQueryBuilder("customers")
+      .select(selectCustomerColumn)
+      .where("customers.line_liff_id = :line_liff_id", {
+        line_liff_id: input.line_liff_id,
+      })
+      .getRawOne();
 
-    const newCustomer = await customerRepository.save(new_customer);
+    if (ct) {
+      ct.first_name = input.first_name;
+      ct.last_name = input.last_name;
+      ct.generation = input.generation;
+      ct.information = input.information;
+      ct.email = input.email;
+      ct.status = input.status;
+      message = "customer have been updated";
 
-    if (chairs) {
-      chairs.forEach((chair_id: any) => {
-        updateChairWithCustomer(
-          res,
-          chair_id,
-          newCustomer.id,
-          newCustomer.first_name
-        );
-      });
+      customer = await customerRepository.save(ct);
+    } else {
+      let new_customer = {
+        line_liff_id: input.line_liff_id,
+        line_display_name: input.line_display_name,
+        line_photo_url: input.line_photo_url,
+        tel: input.tel,
+        first_name: input.first_name,
+        last_name: input.last_name,
+        generation: input.generation,
+        information: input.information,
+        email: input.email,
+        status: "",
+      } as Customers;
+
+      message = "customer has been created";
+
+      customer = await customerRepository.save(new_customer);
+
+      // if (chairs) {
+      //   chairs.forEach((chair_id: any) => {
+      //     updateChairWithCustomer(
+      //       res,
+      //       chair_id,
+      //       newCustomer.id,
+      //       newCustomer.first_name
+      //     );
+      //   });
+      // }
     }
 
     try {
       res.status(200).json({
         status: "success",
-        id: newCustomer.id,
-        message: "Customer has been created",
-        data: newCustomer,
+        id: customer.id,
+        message: message,
+        data: customer,
       });
     } catch (err: any) {
       return responseErrors(
@@ -194,6 +219,7 @@ export const updateCustomerHandler = async (req: Request, res: Response) => {
 
     customer.first_name = input.first_name;
     customer.last_name = input.last_name;
+    customer.generation = input.generation;
     customer.information = input.information;
     customer.email = input.email;
     customer.status = input.status;

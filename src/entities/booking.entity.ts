@@ -6,6 +6,15 @@ import { Customers } from "./customer.entity";
 
 @Entity("bookings")
 export class Bookings extends Model {
+  @Column({})
+  status!: string;
+
+  @Column({})
+  payment_status!: string;
+
+  @Column({})
+  inspector!: string;
+
   @ManyToOne(() => Customers, (customer) => customer.bookings)
   customer!: Customers;
 

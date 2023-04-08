@@ -1,6 +1,6 @@
 import { Chairs } from "../entities/chair.entity";
 import { Desks } from "../entities/desk.entity";
-import { chairPrice, statusAvailable } from "./common";
+import { chairPrice, statusAvailable, tablePrice } from "./common";
 import { AppDataSource } from "./data-source";
 
 const deskRepository = AppDataSource.getRepository(Desks);
@@ -68,6 +68,7 @@ function generateDeskinComedu(count: any) {
       active: true,
       label: labelDesk[index],
       status: statusAvailable,
+      price: tablePrice,
       chairs: [
         {
           label: "A",

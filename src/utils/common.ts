@@ -7,7 +7,7 @@ export const statusUnAvailable = "unavailable";
 export const statusPaid = "paid";
 export const statusUnPaid = "unpaid";
 export const chairPrice = 350;
-export const chairTable = 3200;
+export const tablePrice = 3200;
 
 export const responseErrors = (
   res: Response,

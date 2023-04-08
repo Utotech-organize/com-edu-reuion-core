@@ -5,11 +5,12 @@ import morgan from "morgan";
 import cors from "cors";
 import { AppDataSource } from "./utils/data-source";
 
-import bookingRouter from "./routes/booking.routes";
 import authRouter from "./routes/auth.routes";
+import bookingRouter from "./routes/booking.routes";
+import deskRouter from "./routes/desk.routes";
+import chairRouter from "./routes/chair.routes";
 import userRouter from "./routes/user.routes";
 import customerRouter from "./routes/customer.routes";
-// import lessionRouter from "./routes/booking.routes";
 
 import validateEnv from "./utils/validateEnv";
 import { Users } from "./entities/user.entity";
@@ -61,6 +62,8 @@ AppDataSource.initialize()
 
     // ROUTES;
     app.use("/api/bookings", bookingRouter);
+    app.use("/api/desks", deskRouter);
+    app.use("/api/chairs", chairRouter);
     app.use("/api/customers", customerRouter);
     app.use("/api/users", userRouter);
     app.use("/api/auth", authRouter);

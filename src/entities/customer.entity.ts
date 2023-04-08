@@ -16,12 +16,12 @@ export class Customers extends Model {
   first_name!: string;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
   last_name!: string;
 
   @Column({
-    nullable: false,
+    nullable: true,
   })
   generation!: string;
 
@@ -31,7 +31,7 @@ export class Customers extends Model {
   information!: string;
 
   @Column({
-    nullable: true,
+    nullable: false,
   })
   email!: string;
 
