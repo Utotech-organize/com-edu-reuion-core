@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/Tweed-tech/com-edu-reuion-core/compare/v0.0.2...v0.0.3) (2023-04-08)
+
+
+### Features
+
+* **customer:** add get customer by liff id ([7eab7c2](https://github.com/Tweed-tech/com-edu-reuion-core/commit/7eab7c29f16df5ba75cb92150377961755daa86b))
+* **customer:** fixed customer remove uniqe tel ([1f3e119](https://github.com/Tweed-tech/com-edu-reuion-core/commit/1f3e119ac76f92bb032c1dc5646f3e78b37ce702))
+
+
+### Bug Fixes
+
+* **handle:** remove custom env ([0e6631a](https://github.com/Tweed-tech/com-edu-reuion-core/commit/0e6631af8a6758ac0b5e2714aeb4bbb04fcf55bd))
+* **hotfix:** fixed delete user ([3d49819](https://github.com/Tweed-tech/com-edu-reuion-core/commit/3d49819c49f0479ae0afc08cc01972875d06c177))
+
 ### 0.0.2 (2023-04-03)
 
 
