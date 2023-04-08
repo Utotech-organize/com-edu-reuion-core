@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.5](https://github.com/Tweed-tech/com-edu-reuion-core/compare/v0.0.4...v0.0.5) (2023-04-08)
+
+
+### Features
+
+* **booking:** added booking api for verify booking ([b79c307](https://github.com/Tweed-tech/com-edu-reuion-core/commit/b79c307bbb139917eec715a98ba647430c930976))
+
+
+### Bug Fixes
+
+* **error:** fixed customer and desk api ([576f567](https://github.com/Tweed-tech/com-edu-reuion-core/commit/576f5677a65466fcb7e0ef533ee1602c2eddd880))
+
 ### [0.0.4](https://github.com/Tweed-tech/com-edu-reuion-core/compare/v0.0.3...v0.0.4) (2023-04-08)
 
 
