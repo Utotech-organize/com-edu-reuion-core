@@ -10,4 +10,6 @@ export default {
 
   accessTokenPrivateKey: "JWT_ACCESS_TOKEN_PRIVATE_KEY",
   accessTokenPublicKey: "JWT_ACCESS_TOKEN_PUBLIC_KEY",
+
+  credential_google: "CREDENTIAL_GOOGLE",
 };
