@@ -1,16 +1,25 @@
 import { Request, Response } from "express";
 import { qrcodeGenerator } from "../utils/qrcode";
-import { responseErrors, statusPending, statusUnPaid } from "../utils/common";
+import {
+  responseErrors,
+  statusAvailable,
+  statusComplete,
+  statusPending,
+  statusUnAvailable,
+  statusUnPaid,
+} from "../utils/common";
 import { Bookings } from "../entities/booking.entity";
 import { AppDataSource } from "../utils/data-source";
 import { Customers } from "../entities/customer.entity";
 import { Desks } from "../entities/desk.entity";
 import { Chairs } from "../entities/chair.entity";
+import { Users } from "../entities/user.entity";
 
 const bookingRepository = AppDataSource.getRepository(Bookings);
 const customerRepository = AppDataSource.getRepository(Customers);
 const deskRepository = AppDataSource.getRepository(Desks);
 const chairRepository = AppDataSource.getRepository(Chairs);
+const userRepository = AppDataSource.getRepository(Users);
 
 const selectBookingsColumn = [
   "bookings.id AS id",
@@ -31,9 +40,55 @@ export const createBookingHandler = async (req: Request, res: Response) => {
     const customer = await customerRepository.findOne({
       where: { id: input.id },
     });
-    const desk = await deskRepository.findOne({ where: { id: input.desk } });
+    const desk = await deskRepository.findOne({ where: { id: input.desk_id } });
 
-    updateChairWithDeskHandler(req, res);
+    if (!desk) {
+      return responseErrors(res, 400, "Desk not found", "cannot find desk");
+    }
+
+    const chairsWithDesks = await chairRepository
+      .createQueryBuilder("chairs")
+      .leftJoinAndSelect("chairs.desk", "desk")
+      .where("chairs.desk_id = :desk_id", { desk_id: desk.id })
+      .getMany();
+
+    console.log({ chairsWithDesks });
+
+    // const chairs = chairsWithDesks.map((c: any) => {
+    //   console.log({ c });
+    // });
+
+    // console.log({ chairs });
+
+    const unBookingChairs = chairsWithDesks.filter(
+      (c: any) =>
+        input.chairs_id.indexOf(c.id) > -1 &&
+        (c.status === statusPending || c.status === statusUnAvailable)
+    );
+
+    if (unBookingChairs.length > 0) {
+      return responseErrors(
+        res,
+        400,
+        "Cannot Bookings this chairs",
+        "chairs pedding is duplicate"
+      );
+    }
+
+    chairsWithDesks.forEach((chair: any, index: number) => {
+      if (chair.status !== statusPending) {
+        if (input.chairs_id[index] == chair.id) {
+          chair.status = statusPending;
+
+          chairRepository.save(chair);
+        }
+      }
+    });
+
+    desk.active = true;
+    desk.status = statusPending;
+
+    await deskRepository.save(desk);
 
     let new_booking = {
       status: statusPending,
@@ -86,45 +141,18 @@ export const updateChairWithDeskHandler = async (
       .where("chairs.desk_id = :desk_id", { desk_id: desk.id })
       .getMany();
 
-    // console.log(chairsWithDesks);
-
-    console.log(input);
-
     chairsWithDesks.forEach((chair: any, index: number) => {
-      console.log(chair.id);
-
       if (input.chairs_id[index] == chair.id) {
-        chair.console.log("in if");
-
         chair.status = statusPending;
 
-        const updatedChair = chairRepository.save(chair);
-
-        console.log(updatedChair);
+        chairRepository.save(chair);
       }
     });
 
-    // const chair = await chairRepository.findOneBy({
-    //   desk: input.desk_id as any,
-    // });
+    desk.active = true;
+    desk.status = statusPending;
 
-    // if (!chair) {
-    //   return responseErrors(
-    //     res,
-    //     400,
-    //     "Chair not found",
-    //     "cannot find chair in desk"
-    //   );
-    // }
-
-    // chair.label = input.label;
-    // chair.status = input.status;
-    // chair.price = input.price;
-    // chair.customer_name = input.customer_name;
-    // chair.approve_by = desk.name;
-    // chair.user_id = userId;
-
-    // const updatedChair = await chairRepository.save(chair);
+    await deskRepository.save(desk);
 
     res.status(200).json({
       status: "success",
@@ -137,7 +165,7 @@ export const updateChairWithDeskHandler = async (
 
 export const getAllBookingHandler = async (req: Request, res: Response) => {
   try {
-    const bookings = await customerRepository
+    const bookings = await bookingRepository
       .createQueryBuilder("bookings")
       .select(selectBookingsColumn)
       .getRawMany();
@@ -152,14 +180,29 @@ export const getAllBookingHandler = async (req: Request, res: Response) => {
   }
 };
 
-export const getCustomerByLiffIDHandler = async (
-  req: Request,
-  res: Response
-) => {
+export const getAllBookingsHandler = async (req: Request, res: Response) => {
+  try {
+    const booking = await bookingRepository
+      .createQueryBuilder("bookings")
+      .select(selectBookingsColumn)
+      .where("bookings.deleted_at is null")
+      .getRawMany();
+
+    res.status(200).json({
+      status: "success",
+      results: booking.length,
+      data: booking,
+    });
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't get all Bookings", err.message);
+  }
+};
+
+export const getSingleBookingsHandler = async (req: Request, res: Response) => {
   try {
     const booking_id = req.params.id;
 
-    const booking = await customerRepository
+    const booking = await bookingRepository
       .createQueryBuilder("bookings")
       .select(selectBookingsColumn)
       .where("bookings.id = :id", {
@@ -203,5 +246,99 @@ export const generateQrcodeWithChairID = async (
       "Can't generate your Chair qrcode",
       err.message
     );
+  }
+};
+
+export const updateBookingWithUserHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const input = req.body;
+    const user_id = req.user.id;
+
+    const user = await userRepository.findOneBy({
+      id: user_id as any,
+    });
+
+    if (!user) {
+      return responseErrors(res, 400, "User not found", "cannot find user");
+    }
+
+    // const booking = await bookingRepository.findOneBy({
+    //   id: req.params.id as any,
+    // });
+
+    let updatedBooking;
+
+    await AppDataSource.transaction(async (transactionalEntityManager) => {
+      const booking = await bookingRepository.findOne({
+        where: { id: req.params.id as any },
+        relations: ["desk"],
+      });
+
+      console.log("======================");
+
+      console.log(booking);
+
+      if (!booking) {
+        return responseErrors(
+          res,
+          400,
+          "Booking not found",
+          "cannot find booking"
+        );
+      }
+
+      console.log("======================");
+
+      // FIXME update desk and chair but fixme to simple and easy function component
+      const desk = await deskRepository.findOneBy({
+        id: booking.desk.id as any,
+      });
+
+      if (!desk) {
+        return responseErrors(res, 400, "Desk not found", "cannot find desk");
+      }
+
+      const chairsWithDesks = await chairRepository
+        .createQueryBuilder("chairs")
+        .leftJoinAndSelect("chairs.desk", "desk")
+        .where("chairs.desk_id = :desk_id", { desk_id: desk.id })
+        .getMany();
+
+      chairsWithDesks.forEach((chair: any, index: number) => {
+        if (chair.status == statusPending) {
+          chair.status = statusUnAvailable;
+
+          chairRepository.save(chair);
+        }
+      });
+
+      let counter = 0;
+      for (const obj of chairsWithDesks) {
+        if (obj.status === statusUnAvailable) counter++;
+      }
+
+      if (counter == 10) {
+        desk.status = statusUnAvailable;
+      }
+
+      await deskRepository.save(desk);
+
+      // update booking
+      booking.payment_status = input.payment_status;
+      booking.status = statusComplete;
+      booking.inspector = user.name;
+
+      updatedBooking = await bookingRepository.save(booking);
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: updatedBooking,
+    });
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't update your Booking", err.message);
   }
 };

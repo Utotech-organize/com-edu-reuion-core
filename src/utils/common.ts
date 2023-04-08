@@ -6,6 +6,8 @@ export const statusPending = "pending";
 export const statusUnAvailable = "unavailable";
 export const statusPaid = "paid";
 export const statusUnPaid = "unpaid";
+export const statusComplete = "complete";
+
 export const chairPrice = 350;
 export const tablePrice = 3200;
 

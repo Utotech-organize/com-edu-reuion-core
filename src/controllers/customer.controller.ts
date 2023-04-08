@@ -74,17 +74,6 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
       message = "customer has been created";
 
       customer = await customerRepository.save(new_customer);
-
-      // if (chairs) {
-      //   chairs.forEach((chair_id: any) => {
-      //     updateChairWithCustomer(
-      //       res,
-      //       chair_id,
-      //       newCustomer.id,
-      //       newCustomer.first_name
-      //     );
-      //   });
-      // }
     }
 
     try {
@@ -118,7 +107,7 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
 export const getAllCustomersHandler = async (req: Request, res: Response) => {
   try {
     const customers = await customerRepository
-      .createQueryBuilder("customer")
+      .createQueryBuilder("customers")
       .select(selectCustomerColumn)
       .getRawMany();
 
@@ -224,16 +213,6 @@ export const updateCustomerHandler = async (req: Request, res: Response) => {
     customer.email = input.email;
     customer.status = input.status;
 
-    if (input.chairs) {
-      input.chairs.forEach((chair_id: any) => {
-        updateChairWithCustomer(
-          res,
-          chair_id,
-          customer.id,
-          customer.first_name
-        );
-      });
-    }
     const updatedCustomer = await customerRepository.save(customer);
 
     res.status(200).json({
@@ -268,38 +247,5 @@ export const deleteCustomerHandler = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     return responseErrors(res, 400, "Can't delete your Customer", err.message);
-  }
-};
-
-export const updateChairWithCustomer = async (
-  res: Response,
-  chair_id: number,
-  customer_id: number,
-  customer_firstname: string
-) => {
-  try {
-    const chair = await chairRepository.findOneBy({
-      id: chair_id,
-      status: statusAvailable,
-    });
-
-    if (!chair) {
-      return responseErrors(
-        res,
-        400,
-        "Chair not found",
-        "chair is not available"
-      );
-    }
-
-    chair.status = statusPending;
-    chair.customer_id = customer_id;
-    chair.customer_name = customer_firstname;
-
-    const updatedChair = await chairRepository.save(chair);
-
-    return updatedChair;
-  } catch (err: any) {
-    return responseErrors(res, 400, "Can't booked your Chair", err.message);
   }
 };
