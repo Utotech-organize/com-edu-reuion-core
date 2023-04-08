@@ -3,8 +3,14 @@ import { google } from "googleapis";
 import stream from "stream"; // Added
 require("dotenv").config();
 
+const obj = JSON.parse(process.env.CREDENTIAL_GOOGLE as any);
+
 const auth = new google.auth.GoogleAuth({
-  keyFile: "config/service_account.json",
+  credentials: {
+    private_key: obj.private_key,
+    client_email: obj.client_email,
+    client_id: obj.client_id,
+  },
   scopes: ["https://www.googleapis.com/auth/drive.file"],
 });
 
@@ -14,6 +20,8 @@ const drive = google.drive({
 });
 
 export const uploadFileToGoogleDrive = async (file: any, user: any) => {
+  console.log(file);
+
   const fileMetadata = {
     name: `(${user.name})-${file.originalname}`,
     parents: [process.env.SERVICE_DRIVE_ID ?? ""],
@@ -38,4 +46,12 @@ export const uploadFileToGoogleDrive = async (file: any, user: any) => {
   } catch (error) {
     return error;
   }
+};
+
+export const uploadFileToBase64 = async (file: any) => {
+  let base64data = file.buffer.toString("base64");
+
+  // console.log(base64data);
+
+  return base64data;
 };

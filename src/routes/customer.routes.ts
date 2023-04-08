@@ -3,6 +3,7 @@ import {
   createCustomerHandler,
   deleteCustomerHandler,
   getAllCustomersHandler,
+  getCustomerByLiffIDHandler,
   getCustomerHandler,
   updateCustomerHandler,
 } from "../controllers/customer.controller";
@@ -12,6 +13,8 @@ import { verifyJwt } from "../utils/jwt";
 const router = express.Router();
 
 router.post("/new", createCustomerHandler);
+router.route("/liff").get(getCustomerByLiffIDHandler);
+
 router.route("/edit/:id").put(updateCustomerHandler);
 router.route("/:id").get(getCustomerHandler);
 

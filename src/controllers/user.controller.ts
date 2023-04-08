@@ -1,19 +1,11 @@
 import { Request, Response } from "express";
-import { Desks } from "../entities/desk.entity";
 import { Users } from "../entities/user.entity";
-import { Chairs } from "../entities/chair.entity";
-import {
-  removeValue,
-  responseErrors,
-  statusAvailable,
-  statusUnAvailable,
-} from "../utils/common";
+import { removeValue, responseErrors } from "../utils/common";
 import { AppDataSource } from "../utils/data-source";
 import bcrypt from "bcryptjs";
-import { uploadFileToGoogleDrive } from "../utils/service";
+import { uploadFileToBase64, uploadFileToGoogleDrive } from "../utils/service";
 
 const userRepository = AppDataSource.getRepository(Users);
-const deskRepository = AppDataSource.getRepository(Desks);
 
 export const registerUserHandler = async (req: Request, res: Response) => {
   try {
@@ -171,7 +163,7 @@ export const deleteUserHandler = async (req: Request, res: Response) => {
       return responseErrors(res, 400, "User not found", "cannot find user");
     }
 
-    await deskRepository.delete(user.id); //FIXME
+    await userRepository.delete(user.id); //FIXME
 
     res.status(204).json({
       status: "success",
@@ -197,15 +189,28 @@ export const updateReceiptByUser = async (req: Request, res: Response) => {
 
     const imageID = await uploadFileToGoogleDrive(file, user);
 
-    const response = {
+    res.status(200).json({
+      status: "success",
       imageID,
-    };
+    });
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't upload receipt", err.message);
+  }
+};
+
+export const uploadImageAndConvertToBase64 = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const file = req.file!;
+    const imageID = await uploadFileToBase64(file);
 
     res.status(200).json({
       status: "success",
-      data: response,
+      data: imageID,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, "Can't delete your User", err.message);
+    return responseErrors(res, 400, "Can't upload image", err.message);
   }
 };

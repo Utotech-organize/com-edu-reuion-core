@@ -9,7 +9,6 @@ import {
   statusPending,
 } from "../utils/common";
 import { Customers } from "../entities/customer.entity";
-import { Repository } from "typeorm";
 
 const chairRepository = AppDataSource.getRepository(Chairs);
 const deskRepository = AppDataSource.getRepository(Desks);
@@ -103,12 +102,12 @@ export const getAllCustomersHandler = async (req: Request, res: Response) => {
   }
 };
 
-export const getCustomerHandler = async (req: Request, res: Response) => {
+export const getCustomerByLiffIDHandler = async (
+  req: Request,
+  res: Response
+) => {
   try {
-    const id = req.params.id;
-    const line_liff_id = req.query.line_liff_id;
-    const tel = req.query.tel;
-    let customer;
+    const liffID = req.headers.token;
 
     const customerResponse = [
       "customers.id AS id",
@@ -126,31 +125,13 @@ export const getCustomerHandler = async (req: Request, res: Response) => {
       "customers.line_photo_url AS line_photo_url",
     ];
 
-    if (id === "0") {
-      if (line_liff_id) {
-        customer = await customerRepository
-          .createQueryBuilder("customers")
-          .select(customerResponse)
-          .where("customers.line_liff_id = :line_liff_id", {
-            line_liff_id: line_liff_id,
-          })
-          .getRawOne();
-      }
-
-      if (tel) {
-        customer = await customerRepository
-          .createQueryBuilder("customers")
-          .select(customerResponse)
-          .where("customers.tel = :tel", { tel: tel })
-          .getRawOne();
-      }
-    } else {
-      customer = await customerRepository
-        .createQueryBuilder("customers")
-        .select(customerResponse)
-        .where("customers.id = :id", { id: id })
-        .getRawOne();
-    }
+    const customer = await customerRepository
+      .createQueryBuilder("customers")
+      .select(customerResponse)
+      .where("customers.line_liff_id = :line_liff_id", {
+        line_liff_id: liffID,
+      })
+      .getRawOne();
 
     if (!customer) {
       return responseErrors(
@@ -161,8 +142,56 @@ export const getCustomerHandler = async (req: Request, res: Response) => {
       );
     }
 
-    // const lss = await getLessionByUser(+req.params.postId);
-    // users["lessions"] = lss;
+    res.status(200).json({
+      status: "success",
+      data: customer,
+    });
+  } catch (err: any) {
+    return responseErrors(
+      res,
+      400,
+      "Can't get single Customer by liff id",
+      err.message
+    );
+  }
+};
+
+export const getCustomerHandler = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+
+    const customerResponse = [
+      "customers.id AS id",
+      "customers.created_at AS created_at",
+      "customers.updated_at AS updated_at",
+      "customers.deleted_at AS deleted_at",
+      "customers.tel AS tel",
+      "customers.name AS name",
+      "customers.status AS status",
+      "customers.information AS information",
+      "customers.email AS email",
+      "customers.role AS role",
+      "customers.line_liff_id AS line_liff_id",
+      "customers.line_display_name AS line_display_name",
+      "customers.line_photo_url AS line_photo_url",
+    ];
+
+    const customer = await customerRepository
+      .createQueryBuilder("customers")
+      .select(customerResponse)
+      .where("customers.id = :id", {
+        id: id,
+      })
+      .getRawOne();
+
+    if (!customer) {
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
+    }
 
     res.status(200).json({
       status: "success",
