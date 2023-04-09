@@ -14,7 +14,9 @@ const validateEnv = () => {
     SUPER_ADMIN_EMAIL: str(),
     SUPER_ADMIN_PASSWORD: str(),
     CREDENTIAL_GOOGLE: str(),
-    SERVICE_DRIVE_ID: str(),
+    SERVICE_DRIVE_ID_RECEIPT: str(),
+    SERVICE_DRIVE_ID_USER: str(),
+    SERVICE_DRIVE_ID_QRCODE: str(),
   });
 };
 

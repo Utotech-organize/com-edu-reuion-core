@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { qrcodeGenerator } from "../utils/qrcode";
 import {
   responseErrors,
   statusAvailable,
@@ -14,7 +13,8 @@ import { Customers } from "../entities/customer.entity";
 import { Desks } from "../entities/desk.entity";
 import { Chairs } from "../entities/chair.entity";
 import { Users } from "../entities/user.entity";
-import { uploadFileToGoogleDrive } from "../utils/service";
+import uuid from "../utils/uuid";
+import { qrcodeGenerator } from "../utils/service";
 
 const bookingRepository = AppDataSource.getRepository(Bookings);
 const customerRepository = AppDataSource.getRepository(Customers);
@@ -37,6 +37,7 @@ const selectBookingsColumn = [
 export const createBookingHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
+    let newBooking: any;
 
     const customer = await customerRepository.findOne({
       where: { id: input.customer_id },
@@ -50,7 +51,9 @@ export const createBookingHandler = async (req: Request, res: Response) => {
       );
     }
 
-    const desk = await deskRepository.findOne({ where: { id: input.desk_id } });
+    const desk = await deskRepository.findOne({
+      where: { id: input.desk_id },
+    });
     if (!desk) {
       return responseErrors(res, 400, "Desk not found", "cannot find desk");
     }
@@ -72,7 +75,7 @@ export const createBookingHandler = async (req: Request, res: Response) => {
         res,
         400,
         "Cannot Bookings this chairs",
-        "chairs pedding is duplicate"
+        "chairs pending is duplicate"
       );
     }
 
@@ -90,21 +93,34 @@ export const createBookingHandler = async (req: Request, res: Response) => {
       }
     });
 
+    if (input.chairs_id.length >= 10) {
+      chairPrice = desk.price;
+    }
+
     desk.active = true;
     desk.status = statusPending;
 
     await deskRepository.save(desk);
 
+    let paramsForQr = {
+      first_name: customer.first_name,
+      label: desk.label,
+    };
+    const bookingSlug: string = uuid();
+    const qrcodeURL = await qrcodeGenerator(bookingSlug, paramsForQr);
+
     let new_booking = {
+      slug: bookingSlug,
       status: statusPending,
       payment_status: statusUnPaid,
       inspector: "",
       customer: customer,
       desk: desk,
       total: chairPrice,
+      qrcode_image: qrcodeURL,
     } as Bookings;
 
-    const newBooking = await bookingRepository.save(new_booking);
+    newBooking = await bookingRepository.save(new_booking);
 
     try {
       res.status(200).json({
@@ -173,6 +189,17 @@ export const getAllBookingsHandler = async (req: Request, res: Response) => {
     const bookings = await bookingRepository.find({
       relations: ["customer", "desk"],
       order: { id: "DESC" },
+      select: [
+        "id",
+        "created_at",
+        "updated_at",
+        "status",
+        "payment_status",
+        "inspector",
+        "total",
+        "customer",
+        "desk",
+      ],
     });
 
     res.status(200).json({
@@ -261,47 +288,6 @@ export const getSingleBookingsHandler = async (req: Request, res: Response) => {
   }
 };
 
-export const generateQrcodeWithChairID = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const qrcode = await qrcodeGenerator(req.params.id);
-
-    res.status(200).json({
-      status: "success",
-      data: qrcode,
-    });
-  } catch (err: any) {
-    return responseErrors(
-      res,
-      400,
-      "Can't generate your Chair qrcode",
-      err.message
-    );
-  }
-};
-
-export const uploadFileHandler = async (req: Request, res: Response) => {
-  const user_id = req.user.id;
-  const file = req.file;
-
-  const user = await userRepository.findOneBy({
-    id: user_id as any,
-  });
-
-  if (!user) {
-    return responseErrors(res, 400, "User not found", "cannot find user");
-  }
-
-  const imageID = await uploadFileToGoogleDrive(file, user);
-
-  res.status(200).json({
-    status: "success",
-    data: imageID,
-  });
-};
-
 export const updateBookingWithUserHandler = async (
   req: Request,
   res: Response
@@ -319,62 +305,60 @@ export const updateBookingWithUserHandler = async (
     }
     let updatedBooking;
 
-    await AppDataSource.transaction(async (transactionalEntityManager) => {
-      const booking = await bookingRepository.findOne({
-        where: { id: req.params.id as any },
-        relations: ["desk"],
-      });
-
-      if (!booking) {
-        return responseErrors(
-          res,
-          400,
-          "Booking not found",
-          "cannot find booking"
-        );
-      }
-
-      // FIXME update desk and chair but fixme to simple and easy function component
-      const desk = await deskRepository.findOneBy({
-        id: booking.desk.id as any,
-      });
-
-      if (!desk) {
-        return responseErrors(res, 400, "Desk not found", "cannot find desk");
-      }
-
-      const chairsWithDesks = await chairRepository
-        .createQueryBuilder("chairs")
-        .leftJoinAndSelect("chairs.desk", "desk")
-        .where("chairs.desk_id = :desk_id", { desk_id: desk.id })
-        .getMany();
-
-      chairsWithDesks.forEach((chair: any, index: number) => {
-        if (chair.status == statusPending) {
-          chair.status = statusUnAvailable;
-
-          chairRepository.save(chair);
-        }
-      });
-
-      let counter = 0;
-      for (const obj of chairsWithDesks) {
-        if (obj.status === statusUnAvailable) counter++;
-      }
-
-      if (counter == 10) {
-        desk.status = statusUnAvailable;
-      }
-
-      await deskRepository.save(desk);
-
-      // update booking
-      booking.payment_status = input.payment_status;
-      booking.status = statusComplete;
-      booking.inspector = user.first_name;
-
-      updatedBooking = await bookingRepository.save(booking);
+    const booking = await bookingRepository.findOne({
+      where: { id: req.params.id as any },
+      relations: ["desk"],
     });
+
+    if (!booking) {
+      return responseErrors(
+        res,
+        400,
+        "Booking not found",
+        "cannot find booking"
+      );
+    }
+
+    // FIXME update desk and chair but fixme to simple and easy function component
+    const desk = await deskRepository.findOneBy({
+      id: booking.desk.id as any,
+    });
+
+    if (!desk) {
+      return responseErrors(res, 400, "Desk not found", "cannot find desk");
+    }
+
+    const chairsWithDesks = await chairRepository
+      .createQueryBuilder("chairs")
+      .leftJoinAndSelect("chairs.desk", "desk")
+      .where("chairs.desk_id = :desk_id", { desk_id: desk.id })
+      .getMany();
+
+    chairsWithDesks.forEach((chair: any, index: number) => {
+      if (chair.status == statusPending) {
+        chair.status = statusUnAvailable;
+
+        chairRepository.save(chair);
+      }
+    });
+
+    let counter = 0;
+    for (const obj of chairsWithDesks) {
+      if (obj.status === statusUnAvailable) counter++;
+    }
+
+    if (counter == 10) {
+      desk.status = statusUnAvailable;
+    }
+
+    await deskRepository.save(desk);
+
+    // update booking
+    booking.payment_status = input.payment_status;
+    booking.status = statusComplete;
+    booking.inspector = user.first_name;
+
+    updatedBooking = await bookingRepository.save(booking);
 
     res.status(200).json({
       status: "success",

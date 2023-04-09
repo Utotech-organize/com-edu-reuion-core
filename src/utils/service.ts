@@ -1,5 +1,7 @@
 import { google } from "googleapis";
-import stream from "stream"; // Added
+import stream from "stream";
+import QRCode from "qrcode";
+
 require("dotenv").config();
 
 const obj = JSON.parse(process.env.CREDENTIAL_GOOGLE as any);
@@ -12,19 +14,51 @@ const auth = new google.auth.GoogleAuth({
   },
   scopes: [
     "https://www.googleapis.com/auth/drive.file",
-    // "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/drive.readonly",
   ],
 });
 
-const drive = google.drive({
+export const drive = google.drive({
   version: "v3",
   auth: auth,
 });
 
-export const uploadFileToGoogleDrive = async (file: any, user: any) => {
+export const uploadFileToGoogleDrive = async (file: any) => {
   const fileMetadata = {
-    name: `(${user.name})-${file.originalname}`,
-    parents: [process.env.SERVICE_DRIVE_ID ?? ""],
+    name: `${file.originalname}`,
+    parents: [process.env.SERVICE_DRIVE_ID_USER ?? ""],
+  };
+
+  const bs = new stream.PassThrough();
+  bs.end(file.buffer);
+
+  const media = {
+    mimeType: file.mimetype,
+    body: bs,
+  };
+
+  try {
+    const response = await drive.files.create({
+      requestBody: fileMetadata,
+      media: media,
+      fields: "id",
+    });
+
+    const googleDriveURL = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
+
+    return googleDriveURL;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const uploadFileToGoogleDriveWithUser = async (
+  file: any,
+  user_firstname: any
+) => {
+  const fileMetadata = {
+    name: `(${user_firstname})-${file.originalname}`,
+    parents: [process.env.SERVICE_DRIVE_ID_RECEIPT ?? ""],
   };
 
   const bs = new stream.PassThrough();
@@ -42,22 +76,61 @@ export const uploadFileToGoogleDrive = async (file: any, user: any) => {
       fields: "id",
     });
 
-    return response.data;
+    const googleDriveURL = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
+
+    return googleDriveURL;
   } catch (error) {
     return error;
   }
 };
 
-// const oauth2Client = new google.auth.OAuth2(
-//   obj.client_id,
-//   "CLIENT_SECRET",
-//   "www.google.com"
-// );
+export const getFileInGoogleDrive = async (fileID: any) => {
+  const googleDriveURL = `https://drive.google.com/uc?export=view&id=${fileID}`;
+  return googleDriveURL;
+};
 
-// // Set the access token credentials for the client.
-// oauth2Client.setCredentials({
-//   access_token: "ACCESS_TOKEN",
-//   refresh_token: "REFRESH_TOKEN",
-// });
+export const convertFileToBase64 = async (file: any) => {
+  const b64 = Buffer.from(file.buffer).toString("base64");
+  const mimeType = "image/png"; // e.g., image/png
 
-// export const getImageFromGoogleDrive = () => {};
+  const res = "data:" + mimeType + ";base64," + b64;
+
+  return res;
+};
+
+export const qrcodeGenerator = async (slug: any, params: any) => {
+  try {
+    const qrdata = await QRCode.toBuffer("comedu-reunion:" + slug);
+
+    const fileMetadata = {
+      name: `${params.label}-(${params.first_name})-${slug}`,
+      parents: [process.env.SERVICE_DRIVE_ID_QRCODE ?? ""],
+    };
+
+    const bs = new stream.PassThrough();
+    bs.end(qrdata);
+
+    const media = {
+      mimeType: "image/png",
+      body: bs,
+    };
+
+    try {
+      const response = await drive.files.create({
+        requestBody: fileMetadata,
+        media: media,
+        fields: "id",
+      });
+
+      const googleDriveURL = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
+
+      console.log(googleDriveURL);
+
+      return googleDriveURL;
+    } catch (err) {
+      return err;
+    }
+  } catch (err) {
+    return err;
+  }
+};

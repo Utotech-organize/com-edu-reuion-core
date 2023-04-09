@@ -1,10 +1,13 @@
 import Model from "./model.entity";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, Generated, ManyToOne } from "typeorm";
 import { Desks } from "./desk.entity";
 import { Customers } from "./customer.entity";
 
 @Entity("bookings")
 export class Bookings extends Model {
+  @Column({ nullable: false, unique: true })
+  slug!: string;
+
   @Column({})
   status!: string;
 

@@ -7,9 +7,9 @@ import {
   getAllBookingsHandler,
   getSingleBookingsHandler,
   updateBookingWithUserHandler,
-  uploadFileHandler,
 } from "../controllers/booking.contorller";
 import { uploadFilter } from "../utils/common";
+import { uploadFileHandler } from "../controllers/upload.controller";
 
 const router = express.Router();
 
