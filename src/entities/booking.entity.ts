@@ -1,5 +1,5 @@
 import Model from "./model.entity";
-import { Column, Entity, Generated, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { Desks } from "./desk.entity";
 import { Customers } from "./customer.entity";
 
@@ -25,6 +25,9 @@ export class Bookings extends Model {
 
   @Column({ nullable: true })
   qrcode_image!: string;
+
+  @Column({ nullable: true })
+  image_url!: string;
 
   @ManyToOne(() => Customers, (customer) => customer.bookings)
   @JoinColumn({ name: "customer_id" })

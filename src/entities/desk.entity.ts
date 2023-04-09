@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import Model from "./model.entity";
 import { Chairs } from "./chair.entity";
 import { Bookings } from "./booking.entity";

@@ -41,7 +41,7 @@ export class Users extends Model {
   role!: string;
 
   @Column({ nullable: true })
-  photo_url!: string; //FIXME to base64 image
+  image_url!: string; //FIXME to base64 image
 
   @BeforeInsert()
   async hashPassword() {

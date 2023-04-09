@@ -7,6 +7,7 @@ import {
   getAllBookingsHandler,
   getAllBookingsWithCustomerIDHandler,
   getSingleBookingsHandler,
+  rejectBookingHandler,
   updateBookingWithUserHandler,
 } from "../controllers/booking.contorller";
 import { uploadFilter } from "../utils/common";
@@ -28,6 +29,7 @@ router
   .post(uploadFilter.single("file"), uploadFileHandler);
 
 router.route("/edit/:id").put(updateBookingWithUserHandler);
+router.route("/delete/:id").delete(rejectBookingHandler);
 router.route("/chairs/desk/:id").get(getAllChairsWithDeskIDHandler);
 
 export default router;

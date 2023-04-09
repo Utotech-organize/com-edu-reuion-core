@@ -34,7 +34,7 @@ export const registerUserHandler = async (req: Request, res: Response) => {
         remark: input.remark,
         tel: input.tel,
         role: input.role,
-        photo_url: input.photo_url,
+        image_url: input.photo_url,
       })
     );
 
@@ -74,10 +74,9 @@ export const getAllUsersHandler = async (req: Request, res: Response) => {
       .createQueryBuilder("users")
       .select(selectUserColumn)
       .where("users.deleted_at is null")
+      .andWhere("users.role = :role", { role: "admin" })
       .orderBy("users.id", "DESC")
       .getRawMany();
-
-    removeValue(users[0], 0, users); // not show super admin
 
     res.status(200).json({
       status: "success",
@@ -125,13 +124,13 @@ export const updateUserHandler = async (req: Request, res: Response) => {
       return responseErrors(res, 400, "User not found", "cannot find user");
     }
 
-    user.photo_url = input.photo_url;
+    user.image_url = input.photo_url;
     user.email = input.email;
     user.first_name = input.first_name;
     user.last_name = input.last_name;
     user.remark = input.remark;
     user.tel = input.tel;
-    user.photo_url = input.photo_url;
+    user.image_url = input.photo_url;
 
     if (input.password && input.password !== "") {
       user.password = await bcrypt.hash(input.password, 12);

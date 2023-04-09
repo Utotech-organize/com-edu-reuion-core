@@ -42,7 +42,6 @@ const selectBookingsColumn = [
 export const createBookingHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
-    let newBooking: any;
 
     const customer = await customerRepository.findOne({
       where: { id: input.customer_id },
@@ -67,7 +66,6 @@ export const createBookingHandler = async (req: Request, res: Response) => {
       .getMany();
 
     const all_chair = chairsWithDesks.map((d: any) => d.id);
-
     const checkSomeValue = all_chair.filter(
       (c: any) => input.chairs_id.indexOf(c) > -1
     );
@@ -87,7 +85,7 @@ export const createBookingHandler = async (req: Request, res: Response) => {
     }
     let chairPrice = 0;
 
-    chairsWithDesks.forEach((chair: any, index: number) => {
+    chairsWithDesks.map((chair: any, index: number) => {
       if (chair.status !== statusPending) {
         if (input.chairs_id[index] === chair.id) {
           chair.status = statusPending;
@@ -125,9 +123,10 @@ export const createBookingHandler = async (req: Request, res: Response) => {
       desk: desk,
       total: chairPrice,
       qrcode_image: qrcodeURL,
+      image_url: input.image_url,
     } as Bookings;
 
-    newBooking = await bookingRepository.save(new_booking);
+    const newBooking = await bookingRepository.save(new_booking);
 
     try {
       res.status(200).json({
@@ -170,7 +169,7 @@ export const updateChairWithDeskHandler = async (
       .where("chairs.desk_id = :desk_id", { desk_id: desk.id })
       .getMany();
 
-    chairsWithDesks.forEach((chair: any, index: number) => {
+    chairsWithDesks.map((chair: any, index: number) => {
       if (input.chairs_id[index] == chair.id) {
         chair.status = statusPending;
 
@@ -200,6 +199,7 @@ export const getAllBookingsHandler = async (req: Request, res: Response) => {
         "id",
         "created_at",
         "updated_at",
+        "deleted_at",
         "status",
         "payment_status",
         "inspector",
@@ -229,10 +229,10 @@ export const getAllBookingsWithCustomerIDHandler = async (
     const bookings = await bookingRepository
       .createQueryBuilder("bookings")
       .leftJoinAndSelect("bookings.customer", "customer")
-      .where("bookings.customer_id = :customer_id", {
+      .leftJoinAndSelect("bookings.desk", "desk")
+      .where("bookings.customer.id = :customer_id", {
         customer_id: customer_id,
       })
-      .andWhere("bookings.deleted_at is null")
       .orderBy("bookings.id", "DESC")
       .getMany();
 
@@ -304,7 +304,6 @@ export const getSingleBookingsHandler = async (req: Request, res: Response) => {
         "chairs.user_id AS user_id",
       ])
       .where("chairs.desk_id = :id", { id: desk.id })
-      .andWhere("chairs.deleted_at is null")
       .andWhere("chairs.status = :status", { status: statusPending })
       .andWhere("chairs.customer_id = :customer_id", {
         customer_id: customer.id,
@@ -317,7 +316,7 @@ export const getSingleBookingsHandler = async (req: Request, res: Response) => {
     );
 
     let foundObjectChairs = [] as any;
-    checkSomeValue.forEach((e) => {
+    checkSomeValue.map((e) => {
       foundObjectChairs.push(chairs.find((obj) => obj.id === e));
     });
     booking.desk.chairs = foundObjectChairs;
@@ -331,6 +330,7 @@ export const getSingleBookingsHandler = async (req: Request, res: Response) => {
   }
 };
 
+// updateBookingWithUserHandler is Approve with user
 export const updateBookingWithUserHandler = async (
   req: Request,
   res: Response
@@ -350,7 +350,7 @@ export const updateBookingWithUserHandler = async (
 
     const booking = await bookingRepository.findOne({
       where: { id: req.params.id as any },
-      relations: ["desk"],
+      relations: ["desk", "customer"],
     });
 
     if (!booking) {
@@ -371,30 +371,49 @@ export const updateBookingWithUserHandler = async (
       return responseErrors(res, 400, "Desk not found", "cannot find desk");
     }
 
-    const chairsWithDesks = await chairRepository
+    const chairs = await chairRepository
       .createQueryBuilder("chairs")
-      .leftJoinAndSelect("chairs.desk", "desk")
-      .where("chairs.desk_id = :desk_id", { desk_id: desk.id })
-      .getMany();
+      .select(["chairs.id AS id"])
+      .where("chairs.desk_id = :id", { id: desk.id })
+      .getRawMany();
 
-    chairsWithDesks.forEach((chair: any, index: number) => {
-      if (chair.status == statusPending) {
-        chair.status = statusUnAvailable;
+    const all_chair = chairs.map((d: any) => d.id);
+
+    const checkSomeValue = all_chair.filter(
+      (c: any) => booking.chairs_id.indexOf(c) > -1
+    );
+
+    let foundObjectChairs = [] as any;
+    checkSomeValue.map((e) => {
+      foundObjectChairs.push(chairs.find((obj) => obj.id === e));
+    });
+
+    let chairs_id: any = booking.chairs_id.split(",");
+
+    foundObjectChairs.map((chair: any, index: number) => {
+      if (chairs_id[index] === `${chair.id}`) {
+        chair.status = statusAvailable;
+        chair.customer_id = 0;
 
         chairRepository.save(chair);
       }
     });
 
-    let counter = 0;
-    for (const obj of chairsWithDesks) {
-      if (obj.status === statusUnAvailable) counter++;
+    booking.desk.chairs = foundObjectChairs;
+
+    const all_chair_status = chairs.map((d: any) => d.status);
+
+    let counts = all_chair_status.reduce((acc, curr) => {
+      const str = curr;
+      acc[str] = (acc[str] || 0) + 1;
+      return acc;
+    }, {});
+
+    if (counts.unavailable === 10) {
+      booking.desk.status = statusAvailable;
     }
 
-    if (counter == 10) {
-      desk.status = statusUnAvailable;
-    }
-
-    await deskRepository.save(desk);
+    await deskRepository.save(booking.desk);
 
     // update booking
     booking.payment_status = input.payment_status;
@@ -409,5 +428,116 @@ export const updateBookingWithUserHandler = async (
     });
   } catch (err: any) {
     return responseErrors(res, 400, "Can't update your Booking", err.message);
+  }
+};
+
+export const rejectBookingHandler = async (req: Request, res: Response) => {
+  try {
+    const input = req.params;
+
+    const booking = await bookingRepository
+      .createQueryBuilder("bookings")
+      .leftJoinAndSelect("bookings.desk", "desk")
+      .leftJoinAndSelect("bookings.customer", "customer")
+      .select(selectBookingsColumn)
+      .where("bookings.id = :id", { id: input.id })
+      .getOne();
+
+    if (!booking) {
+      return responseErrors(
+        res,
+        400,
+        "Booking not found",
+        "cannot find booking"
+      );
+    }
+
+    const customer = await customerRepository.findOneBy({
+      id: booking.customer.id,
+    });
+    if (!customer) {
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
+    }
+    booking.customer = customer;
+
+    const desk = await deskRepository.findOneBy({
+      id: booking.desk.id,
+    });
+    if (!desk) {
+      return responseErrors(res, 400, "Desk not found", "cannot find desk");
+    }
+    booking.desk = desk;
+
+    const chairs = await chairRepository
+      .createQueryBuilder("chairs")
+      .select([
+        "chairs.id AS id",
+        "chairs.created_at AS created_at",
+        "chairs.updated_at AS updated_at",
+        "chairs.deleted_at AS deleted_at",
+        "chairs.label AS label",
+        "chairs.status AS status",
+        "chairs.chair_no AS chair_no",
+        "chairs.price AS price",
+        "chairs.customer_id AS customer_id",
+        "chairs.user_id AS user_id",
+      ])
+      .where("chairs.desk_id = :id", { id: desk.id })
+      .getRawMany();
+
+    const all_chair = chairs.map((d: any) => d.id);
+
+    const checkSomeValue = all_chair.filter(
+      (c: any) => booking.chairs_id.indexOf(c) > -1
+    );
+
+    let foundObjectChairs = [] as any;
+    checkSomeValue.map((e) => {
+      foundObjectChairs.push(chairs.find((obj) => obj.id === e));
+    });
+
+    let chairs_id: any = booking.chairs_id.split(",");
+
+    foundObjectChairs.map((chair: any, index: number) => {
+      if (chairs_id[index] === `${chair.id}`) {
+        chair.status = statusAvailable;
+        chair.customer_id = 0;
+
+        chairRepository.save(chair);
+      }
+    });
+
+    booking.desk.chairs = foundObjectChairs;
+
+    const all_chair_status = chairs.map((d: any) => d.status);
+
+    let counts = all_chair_status.reduce((acc, curr) => {
+      const str = curr;
+      acc[str] = (acc[str] || 0) + 1;
+      return acc;
+    }, {});
+
+    if (counts.available === 10) {
+      booking.desk.status = statusAvailable;
+    }
+
+    await deskRepository.save(booking.desk);
+
+    const d: Date = new Date();
+    booking.deleted_at = d;
+
+    await bookingRepository.save(booking); //FIXME
+
+    res.status(200).json({
+      status: "success",
+      data: null,
+    });
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't delete your Booking", err.message);
   }
 };
