@@ -4,11 +4,9 @@ import {
   getAllUsersHandler,
   getUserHandler,
   registerUserHandler,
-  updateReceiptByUser,
   updateUserHandler,
 } from "../controllers/user.controller";
 import { verifyJwt } from "../utils/jwt";
-import { uploadFilter } from "../utils/common";
 
 const router = express.Router();
 
