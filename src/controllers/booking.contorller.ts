@@ -123,7 +123,6 @@ export const createBookingHandler = async (req: Request, res: Response) => {
       desk: desk,
       total: chairPrice,
       qrcode_image: qrcodeURL,
-      image_url: input.image_url,
     } as Bookings;
 
     const newBooking = await bookingRepository.save(new_booking);
@@ -337,6 +336,7 @@ export const updateBookingWithUserHandler = async (
 ) => {
   try {
     const input = req.body;
+    const booking_id = req.params.id;
     const user_id = req.user.id;
 
     const user = await userRepository.findOneBy({
@@ -346,12 +346,14 @@ export const updateBookingWithUserHandler = async (
     if (!user) {
       return responseErrors(res, 400, "User not found", "cannot find user");
     }
-    let updatedBooking;
 
-    const booking = await bookingRepository.findOne({
-      where: { id: req.params.id as any },
-      relations: ["desk", "customer"],
-    });
+    const booking = await bookingRepository
+      .createQueryBuilder("bookings")
+      .select(selectBookingsColumn)
+      .where("bookings.id = :id", {
+        id: booking_id,
+      })
+      .getRawOne();
 
     if (!booking) {
       return responseErrors(
@@ -362,18 +364,41 @@ export const updateBookingWithUserHandler = async (
       );
     }
 
-    // FIXME update desk and chair but fixme to simple and easy function component
-    const desk = await deskRepository.findOneBy({
-      id: booking.desk.id as any,
+    const customer = await customerRepository.findOneBy({
+      id: booking.customer,
     });
+    if (!customer) {
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
+    }
+    booking.customer = customer;
 
+    const desk = await deskRepository.findOneBy({
+      id: booking.desk,
+    });
     if (!desk) {
       return responseErrors(res, 400, "Desk not found", "cannot find desk");
     }
+    booking.desk = desk;
 
     const chairs = await chairRepository
       .createQueryBuilder("chairs")
-      .select(["chairs.id AS id"])
+      .select([
+        "chairs.id AS id",
+        "chairs.created_at AS created_at",
+        "chairs.updated_at AS updated_at",
+        "chairs.deleted_at AS deleted_at",
+        "chairs.label AS label",
+        "chairs.status AS status",
+        "chairs.chair_no AS chair_no",
+        "chairs.price AS price",
+        "chairs.customer_id AS customer_id",
+        "chairs.user_id AS user_id",
+      ])
       .where("chairs.desk_id = :id", { id: desk.id })
       .getRawMany();
 
@@ -392,14 +417,14 @@ export const updateBookingWithUserHandler = async (
 
     foundObjectChairs.map((chair: any, index: number) => {
       if (chairs_id[index] === `${chair.id}`) {
-        chair.status = statusAvailable;
-        chair.customer_id = 0;
+        chair.status = statusUnAvailable;
+        chair.customer_id = customer.id;
+        chair.customer_name = customer.first_name;
+        chair.user_id = user.id;
 
         chairRepository.save(chair);
       }
     });
-
-    booking.desk.chairs = foundObjectChairs;
 
     const all_chair_status = chairs.map((d: any) => d.status);
 
@@ -410,17 +435,19 @@ export const updateBookingWithUserHandler = async (
     }, {});
 
     if (counts.unavailable === 10) {
-      booking.desk.status = statusAvailable;
+      desk.status = statusAvailable;
     }
 
-    await deskRepository.save(booking.desk);
+    await deskRepository.save(desk);
 
     // update booking
     booking.payment_status = input.payment_status;
     booking.status = statusComplete;
     booking.inspector = user.first_name;
+    booking.desk_chairs = foundObjectChairs;
+    booking.image_url = input.image_url;
 
-    updatedBooking = await bookingRepository.save(booking);
+    const updatedBooking = await bookingRepository.save(booking);
 
     res.status(200).json({
       status: "success",
@@ -433,15 +460,15 @@ export const updateBookingWithUserHandler = async (
 
 export const rejectBookingHandler = async (req: Request, res: Response) => {
   try {
-    const input = req.params;
+    const booking_id = req.params.id;
 
     const booking = await bookingRepository
       .createQueryBuilder("bookings")
-      .leftJoinAndSelect("bookings.desk", "desk")
-      .leftJoinAndSelect("bookings.customer", "customer")
       .select(selectBookingsColumn)
-      .where("bookings.id = :id", { id: input.id })
-      .getOne();
+      .where("bookings.id = :id", {
+        id: booking_id,
+      })
+      .getRawOne();
 
     if (!booking) {
       return responseErrors(
@@ -453,7 +480,7 @@ export const rejectBookingHandler = async (req: Request, res: Response) => {
     }
 
     const customer = await customerRepository.findOneBy({
-      id: booking.customer.id,
+      id: booking.customer,
     });
     if (!customer) {
       return responseErrors(
@@ -466,7 +493,7 @@ export const rejectBookingHandler = async (req: Request, res: Response) => {
     booking.customer = customer;
 
     const desk = await deskRepository.findOneBy({
-      id: booking.desk.id,
+      id: booking.desk,
     });
     if (!desk) {
       return responseErrors(res, 400, "Desk not found", "cannot find desk");
@@ -511,8 +538,7 @@ export const rejectBookingHandler = async (req: Request, res: Response) => {
         chairRepository.save(chair);
       }
     });
-
-    booking.desk.chairs = foundObjectChairs;
+    booking.desk_chairs = foundObjectChairs;
 
     const all_chair_status = chairs.map((d: any) => d.status);
 
