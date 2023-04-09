@@ -16,6 +16,7 @@ const validateEnv = () => {
     CREDENTIAL_GOOGLE: str(),
     SERVICE_DRIVE_ID_RECEIPT: str(),
     SERVICE_DRIVE_ID_USER: str(),
+    SERVICE_DRIVE_ID_QRCODE: str(),
   });
 };
 

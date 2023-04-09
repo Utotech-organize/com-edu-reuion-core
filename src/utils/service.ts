@@ -1,5 +1,7 @@
 import { google } from "googleapis";
-import stream from "stream"; // Added
+import stream from "stream";
+import QRCode from "qrcode";
+
 require("dotenv").config();
 
 const obj = JSON.parse(process.env.CREDENTIAL_GOOGLE as any);
@@ -32,7 +34,7 @@ export const uploadFileToGoogleDrive = async (file: any) => {
 
   const media = {
     mimeType: file.mimetype,
-    body: bs, // Modified
+    body: bs,
   };
 
   try {
@@ -94,4 +96,41 @@ export const convertFileToBase64 = async (file: any) => {
   const res = "data:" + mimeType + ";base64," + b64;
 
   return res;
+};
+
+export const qrcodeGenerator = async (slug: any, params: any) => {
+  try {
+    const qrdata = await QRCode.toBuffer("comedu-reunion:" + slug);
+
+    const fileMetadata = {
+      name: `${params.label}-(${params.first_name})-${slug}`,
+      parents: [process.env.SERVICE_DRIVE_ID_QRCODE ?? ""],
+    };
+
+    const bs = new stream.PassThrough();
+    bs.end(qrdata);
+
+    const media = {
+      mimeType: "image/png",
+      body: bs,
+    };
+
+    try {
+      const response = await drive.files.create({
+        requestBody: fileMetadata,
+        media: media,
+        fields: "id",
+      });
+
+      const googleDriveURL = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
+
+      console.log(googleDriveURL);
+
+      return googleDriveURL;
+    } catch (err) {
+      return err;
+    }
+  } catch (err) {
+    return err;
+  }
 };

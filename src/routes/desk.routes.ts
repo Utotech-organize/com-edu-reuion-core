@@ -18,6 +18,5 @@ router.post("/new", createDeskHandler);
 router.route("/:id").get(getDeskHandler);
 router.route("/edit/:id").put(updateDeskHandler);
 router.route("/delete/:id").delete(deleteDeskHandler);
-// router.route("/chairs/qrcode").get(generateQrcodeWithChairID);
 
 export default router;
