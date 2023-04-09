@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.11](https://github.com/Tweed-tech/ComEduReuion-core/compare/v0.0.10...v0.0.11) (2023-04-09)
+
+
+### Features
+
+* **order:** added order table and fixed customer ([d4f71d8](https://github.com/Tweed-tech/ComEduReuion-core/commit/d4f71d8657f696c628f25bda130a356cf0d25d1f))
+
+
+### Bug Fixes
+
+* **data:** fixed mock data to sort by id ([37fca47](https://github.com/Tweed-tech/ComEduReuion-core/commit/37fca47eb95f12c8387a92c685e08db0724e60c2))
+
 ### [0.0.10](https://github.com/Tweed-tech/ComEduReuion-core/compare/v0.0.9...v0.0.10) (2023-04-09)
 
 
