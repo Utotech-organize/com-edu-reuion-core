@@ -23,12 +23,4 @@ router.route("/:id").get(getUserHandler);
 router.route("/edit/:id").put(updateUserHandler);
 router.route("/delete/:id").delete(deleteUserHandler);
 
-router
-  .route("/upload/receipt")
-  .post(uploadFilter.single("file"), updateReceiptByUser);
-
-router
-  .route("/upload")
-  .post(uploadFilter.single("file"), uploadImageAndConvertToBase64);
-
 export default router;

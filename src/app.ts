@@ -14,9 +14,10 @@ import customerRouter from "./routes/customer.routes";
 
 import validateEnv from "./utils/validateEnv";
 import { Users } from "./entities/user.entity";
-import { responseErrors } from "./utils/common";
+import { responseErrors, uploadFilter } from "./utils/common";
 import { initDeskAndChairs } from "./utils/mock-default-data";
 import { Desks } from "./entities/desk.entity";
+import { uploadFileHandler } from "./controllers/booking.contorller";
 
 const deskRepository = AppDataSource.getRepository(Desks);
 
@@ -67,6 +68,7 @@ AppDataSource.initialize()
     app.use("/api/customers", customerRouter);
     app.use("/api/users", userRouter);
     app.use("/api/auth", authRouter);
+    app.post("/upload", uploadFilter.single("file"), uploadFileHandler);
 
     // set up mock updata
     const desks = await deskRepository.createQueryBuilder("desks").getMany();

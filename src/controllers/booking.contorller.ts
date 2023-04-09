@@ -14,6 +14,7 @@ import { Customers } from "../entities/customer.entity";
 import { Desks } from "../entities/desk.entity";
 import { Chairs } from "../entities/chair.entity";
 import { Users } from "../entities/user.entity";
+import { uploadFileToGoogleDrive } from "../utils/service";
 
 const bookingRepository = AppDataSource.getRepository(Bookings);
 const customerRepository = AppDataSource.getRepository(Customers);
@@ -51,14 +52,6 @@ export const createBookingHandler = async (req: Request, res: Response) => {
       .leftJoinAndSelect("chairs.desk", "desk")
       .where("chairs.desk_id = :desk_id", { desk_id: desk.id })
       .getMany();
-
-    console.log({ chairsWithDesks });
-
-    // const chairs = chairsWithDesks.map((c: any) => {
-    //   console.log({ c });
-    // });
-
-    // console.log({ chairs });
 
     const unBookingChairs = chairsWithDesks.filter(
       (c: any) =>
@@ -156,7 +149,6 @@ export const updateChairWithDeskHandler = async (
 
     res.status(200).json({
       status: "success",
-      // data: updatedChair,
     });
   } catch (err: any) {
     return responseErrors(res, 400, "Can't update your Chair", err.message);
@@ -249,6 +241,26 @@ export const generateQrcodeWithChairID = async (
   }
 };
 
+export const uploadFileHandler = async (req: Request, res: Response) => {
+  const user_id = req.user.id;
+  const file = req.file;
+
+  const user = await userRepository.findOneBy({
+    id: user_id as any,
+  });
+
+  if (!user) {
+    return responseErrors(res, 400, "User not found", "cannot find user");
+  }
+
+  const imageID = await uploadFileToGoogleDrive(file, user);
+
+  res.status(200).json({
+    status: "success",
+    data: imageID,
+  });
+};
+
 export const updateBookingWithUserHandler = async (
   req: Request,
   res: Response
@@ -265,10 +277,6 @@ export const updateBookingWithUserHandler = async (
       return responseErrors(res, 400, "User not found", "cannot find user");
     }
 
-    // const booking = await bookingRepository.findOneBy({
-    //   id: req.params.id as any,
-    // });
-
     let updatedBooking;
 
     await AppDataSource.transaction(async (transactionalEntityManager) => {
@@ -276,10 +284,6 @@ export const updateBookingWithUserHandler = async (
         where: { id: req.params.id as any },
         relations: ["desk"],
       });
-
-      console.log("======================");
-
-      console.log(booking);
 
       if (!booking) {
         return responseErrors(
@@ -289,8 +293,6 @@ export const updateBookingWithUserHandler = async (
           "cannot find booking"
         );
       }
-
-      console.log("======================");
 
       // FIXME update desk and chair but fixme to simple and easy function component
       const desk = await deskRepository.findOneBy({

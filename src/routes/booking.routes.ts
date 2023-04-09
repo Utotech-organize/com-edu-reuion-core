@@ -7,7 +7,9 @@ import {
   getAllBookingsHandler,
   getSingleBookingsHandler,
   updateBookingWithUserHandler,
+  uploadFileHandler,
 } from "../controllers/booking.contorller";
+import { uploadFilter } from "../utils/common";
 
 const router = express.Router();
 
@@ -18,8 +20,12 @@ router.route("/:id").get(getSingleBookingsHandler);
 router.use(verifyJwt);
 
 router.route("/").get(getAllBookingsHandler);
-router.route("/edit/:id").put(updateBookingWithUserHandler);
 
+router
+  .route("/upload/receipt")
+  .post(uploadFilter.single("file"), uploadFileHandler);
+
+router.route("/edit/:id").put(updateBookingWithUserHandler);
 router.route("/chairs/desk/:id").get(getAllChairsWithDeskIDHandler);
 
 export default router;
