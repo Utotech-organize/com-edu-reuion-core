@@ -93,6 +93,10 @@ export const createBookingHandler = async (req: Request, res: Response) => {
       }
     });
 
+    if (input.chairs_id.length >= 10) {
+      chairPrice = desk.price;
+    }
+
     desk.active = true;
     desk.status = statusPending;
 
@@ -103,7 +107,6 @@ export const createBookingHandler = async (req: Request, res: Response) => {
       label: desk.label,
     };
     const bookingSlug: string = uuid();
-
     const qrcodeURL = await qrcodeGenerator(bookingSlug, paramsForQr);
 
     let new_booking = {
