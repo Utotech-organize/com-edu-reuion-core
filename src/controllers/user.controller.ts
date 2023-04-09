@@ -17,7 +17,7 @@ const selectUserColumn = [
   "users.remark AS remark",
   "users.tel AS tel",
   "users.role AS role",
-  "users.photo_url AS photo_url",
+  "users.image_url AS image_url",
 ];
 
 export const registerUserHandler = async (req: Request, res: Response) => {
@@ -34,7 +34,7 @@ export const registerUserHandler = async (req: Request, res: Response) => {
         remark: input.remark,
         tel: input.tel,
         role: input.role,
-        image_url: input.photo_url,
+        image_url: input.image_url,
       })
     );
 
@@ -124,13 +124,12 @@ export const updateUserHandler = async (req: Request, res: Response) => {
       return responseErrors(res, 400, "User not found", "cannot find user");
     }
 
-    user.image_url = input.photo_url;
     user.email = input.email;
     user.first_name = input.first_name;
     user.last_name = input.last_name;
     user.remark = input.remark;
     user.tel = input.tel;
-    user.image_url = input.photo_url;
+    user.image_url = input.image_url;
 
     if (input.password && input.password !== "") {
       user.password = await bcrypt.hash(input.password, 12);
@@ -157,7 +156,7 @@ export const deleteUserHandler = async (req: Request, res: Response) => {
       return responseErrors(res, 400, "User not found", "cannot find user");
     }
 
-    await userRepository.delete(user.id); //FIXME
+    await userRepository.softDelete(user.id); //FIXME
 
     res.status(204).json({
       status: "success",
