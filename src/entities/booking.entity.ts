@@ -26,10 +26,14 @@ export class Bookings extends Model {
   @Column({ nullable: true })
   qrcode_image!: string;
 
+  @Column({ nullable: true })
+  image_url!: string;
+
   @ManyToOne(() => Customers, (customer) => customer.bookings)
   @JoinColumn({ name: "customer_id" })
   customer!: Customers;
 
   @ManyToOne(() => Desks, (desk) => desk.bookings)
+  @JoinColumn()
   desk!: Desks;
 }

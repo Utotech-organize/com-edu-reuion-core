@@ -74,10 +74,9 @@ export const getAllUsersHandler = async (req: Request, res: Response) => {
       .createQueryBuilder("users")
       .select(selectUserColumn)
       .where("users.deleted_at is null")
+      .andWhere("users.role = :role", { role: "admin" })
       .orderBy("users.id", "DESC")
       .getRawMany();
-
-    removeValue(users[0], 0, users); // not show super admin
 
     res.status(200).json({
       status: "success",

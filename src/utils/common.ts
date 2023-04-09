@@ -50,7 +50,7 @@ export function removeValue(value: any, index: any, arr: any) {
   // If the value at the current array index matches the specified value (2)
   if (value) {
     // Removes the value from the original array
-    arr.splice(index, 1);
+    arr.splice(index, 0);
     return true;
   }
   return false;

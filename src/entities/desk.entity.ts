@@ -29,6 +29,7 @@ export class Desks extends Model {
   chair_price!: number;
 
   @OneToMany(() => Chairs, (chair) => chair.id)
+  @JoinColumn()
   chairs!: Chairs[];
 
   @OneToMany(() => Bookings, (booking) => booking.customer)
