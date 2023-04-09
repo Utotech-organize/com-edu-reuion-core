@@ -1,7 +1,6 @@
 import Model from "./model.entity";
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import { Desks } from "./desk.entity";
-import { statusAvailable } from "../utils/common";
 import { Customers } from "./customer.entity";
 
 @Entity("bookings")
@@ -14,6 +13,12 @@ export class Bookings extends Model {
 
   @Column({})
   inspector!: string;
+
+  @Column({ nullable: true })
+  chairs_id!: string;
+
+  @Column({ nullable: true })
+  total!: number;
 
   @ManyToOne(() => Customers, (customer) => customer.bookings)
   customer!: Customers;

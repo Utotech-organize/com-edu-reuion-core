@@ -39,10 +39,18 @@ export const createBookingHandler = async (req: Request, res: Response) => {
     const input = req.body;
 
     const customer = await customerRepository.findOne({
-      where: { id: input.id },
+      where: { id: input.customer_id },
     });
-    const desk = await deskRepository.findOne({ where: { id: input.desk_id } });
+    if (!customer) {
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
+    }
 
+    const desk = await deskRepository.findOne({ where: { id: input.desk_id } });
     if (!desk) {
       return responseErrors(res, 400, "Desk not found", "cannot find desk");
     }
@@ -68,10 +76,14 @@ export const createBookingHandler = async (req: Request, res: Response) => {
       );
     }
 
+    let chairPrice = 0;
+
     chairsWithDesks.forEach((chair: any, index: number) => {
       if (chair.status !== statusPending) {
         if (input.chairs_id[index] == chair.id) {
           chair.status = statusPending;
+          chair.customer_id = customer.id;
+          chairPrice = chairPrice + chair.price;
 
           chairRepository.save(chair);
         }
@@ -89,6 +101,7 @@ export const createBookingHandler = async (req: Request, res: Response) => {
       inspector: "",
       customer: customer,
       desk: desk,
+      total: chairPrice,
     } as Bookings;
 
     const newBooking = await bookingRepository.save(new_booking);
@@ -155,12 +168,19 @@ export const updateChairWithDeskHandler = async (
   }
 };
 
-export const getAllBookingHandler = async (req: Request, res: Response) => {
+export const getAllBookingsHandler = async (req: Request, res: Response) => {
   try {
-    const bookings = await bookingRepository
-      .createQueryBuilder("bookings")
-      .select(selectBookingsColumn)
-      .getRawMany();
+    // const bookings = await bookingRepository
+    //   .createQueryBuilder("bookings").relation("")
+    //   .select(selectBookingsColumn)
+    //   .where("bookings.deleted_at is null")
+    //   .orderBy("bookings.id", "DESC")
+    //   .getRawMany();
+
+    const bookings = await bookingRepository.find({
+      relations: ["customer", "desk"],
+      order: { id: "DESC" },
+    });
 
     res.status(200).json({
       status: "success",
@@ -172,23 +192,23 @@ export const getAllBookingHandler = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllBookingsHandler = async (req: Request, res: Response) => {
-  try {
-    const booking = await bookingRepository
-      .createQueryBuilder("bookings")
-      .select(selectBookingsColumn)
-      .where("bookings.deleted_at is null")
-      .getRawMany();
+// export const getAllBookingsHandler = async (req: Request, res: Response) => {
+//   try {
+//     const booking = await bookingRepository
+//       .createQueryBuilder("bookings")
+//       .select(selectBookingsColumn)
+//       .where("bookings.deleted_at is null")
+//       .getRawMany();
 
-    res.status(200).json({
-      status: "success",
-      results: booking.length,
-      data: booking,
-    });
-  } catch (err: any) {
-    return responseErrors(res, 400, "Can't get all Bookings", err.message);
-  }
-};
+//     res.status(200).json({
+//       status: "success",
+//       results: booking.length,
+//       data: booking,
+//     });
+//   } catch (err: any) {
+//     return responseErrors(res, 400, "Can't get all Bookings", err.message);
+//   }
+// };
 
 export const getSingleBookingsHandler = async (req: Request, res: Response) => {
   try {
@@ -210,6 +230,52 @@ export const getSingleBookingsHandler = async (req: Request, res: Response) => {
         "cannot find bookings"
       );
     }
+
+    const customer = await customerRepository.findOneBy({
+      id: booking.customer,
+    });
+
+    if (!customer) {
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
+    }
+    booking.customer = customer;
+
+    const desk = await deskRepository.findOneBy({
+      id: booking.desk,
+    });
+    if (!desk) {
+      return responseErrors(res, 400, "Desk not found", "cannot find desk");
+    }
+    booking.desk = desk;
+
+    const chairs = await chairRepository
+      .createQueryBuilder("chairs")
+      .select([
+        "chairs.id AS id",
+        "chairs.created_at AS created_at",
+        "chairs.updated_at AS updated_at",
+        "chairs.deleted_at AS deleted_at",
+        "chairs.label AS label",
+        "chairs.status AS status",
+        "chairs.chair_no AS chair_no",
+        "chairs.price AS price",
+        "chairs.customer_id AS customer_id",
+        "chairs.user_id AS user_id",
+      ])
+      .where("chairs.desk_id = :id", { id: desk.id })
+      .andWhere("chairs.deleted_at is null")
+      .andWhere("chairs.status = :status", { status: statusPending })
+      .andWhere("chairs.customer_id = :customer_id", {
+        customer_id: customer.id,
+      })
+      .getRawMany();
+
+    booking.desk.chairs_id = chairs;
 
     res.status(200).json({
       status: "success",
@@ -276,7 +342,6 @@ export const updateBookingWithUserHandler = async (
     if (!user) {
       return responseErrors(res, 400, "User not found", "cannot find user");
     }
-
     let updatedBooking;
 
     await AppDataSource.transaction(async (transactionalEntityManager) => {
@@ -331,7 +396,7 @@ export const updateBookingWithUserHandler = async (
       // update booking
       booking.payment_status = input.payment_status;
       booking.status = statusComplete;
-      booking.inspector = user.name;
+      booking.inspector = user.first_name;
 
       updatedBooking = await bookingRepository.save(booking);
     });

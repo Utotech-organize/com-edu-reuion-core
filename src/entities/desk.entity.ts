@@ -8,14 +8,25 @@ export class Desks extends Model {
   @Column({ default: true })
   active!: boolean;
 
-  @Column()
+  @Column({
+    nullable: false,
+  })
   label!: string;
 
-  @Column()
+  @Column({
+    nullable: false,
+  })
   status!: string;
 
-  @Column()
+  @Column({
+    nullable: false,
+  })
   price!: number;
+
+  @Column({
+    nullable: true,
+  })
+  chair_price!: number;
 
   @OneToMany(() => Chairs, (chair) => chair.id)
   chairs!: Chairs[];

@@ -1,9 +1,8 @@
 import { google } from "googleapis";
-import stream, { PassThrough } from "stream"; // Added
+import stream from "stream"; // Added
 require("dotenv").config();
 
 const obj = JSON.parse(process.env.CREDENTIAL_GOOGLE as any);
-console.log(obj);
 
 const auth = new google.auth.GoogleAuth({
   credentials: {
@@ -13,7 +12,7 @@ const auth = new google.auth.GoogleAuth({
   },
   scopes: [
     "https://www.googleapis.com/auth/drive.file",
-    "https://www.googleapis.com/auth/drive.readonly",
+    // "https://www.googleapis.com/auth/drive.readonly",
   ],
 });
 
@@ -49,16 +48,16 @@ export const uploadFileToGoogleDrive = async (file: any, user: any) => {
   }
 };
 
-const oauth2Client = new google.auth.OAuth2(
-  obj.client_id,
-  "CLIENT_SECRET",
-  "www.google.com"
-);
+// const oauth2Client = new google.auth.OAuth2(
+//   obj.client_id,
+//   "CLIENT_SECRET",
+//   "www.google.com"
+// );
 
-// Set the access token credentials for the client.
-oauth2Client.setCredentials({
-  access_token: "ACCESS_TOKEN",
-  refresh_token: "REFRESH_TOKEN",
-});
+// // Set the access token credentials for the client.
+// oauth2Client.setCredentials({
+//   access_token: "ACCESS_TOKEN",
+//   refresh_token: "REFRESH_TOKEN",
+// });
 
-export const getImageFromGoogleDrive = () => {};
+// export const getImageFromGoogleDrive = () => {};

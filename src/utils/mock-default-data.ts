@@ -5,9 +5,10 @@ import { AppDataSource } from "./data-source";
 
 const deskRepository = AppDataSource.getRepository(Desks);
 const chairRepository = AppDataSource.getRepository(Chairs);
+const countDesk = 30;
 
 export const initDeskAndChairs = async () => {
-  let mockdata = generateDeskinComedu(25);
+  let mockdata = generateDeskinComedu(countDesk);
 
   const desks = await deskRepository.save(mockdata);
 
@@ -59,6 +60,11 @@ function generateDeskinComedu(count: any) {
     "E3",
     "E4",
     "E5",
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
   ];
 
   const allDesk = [];
@@ -69,6 +75,7 @@ function generateDeskinComedu(count: any) {
       label: labelDesk[index],
       status: statusAvailable,
       price: tablePrice,
+      chair_price: chairPrice,
       chairs: [
         {
           label: "A",

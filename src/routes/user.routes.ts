@@ -6,7 +6,6 @@ import {
   registerUserHandler,
   updateReceiptByUser,
   updateUserHandler,
-  uploadImageAndConvertToBase64,
 } from "../controllers/user.controller";
 import { verifyJwt } from "../utils/jwt";
 import { uploadFilter } from "../utils/common";

@@ -8,6 +8,19 @@ import { qrcodeGenerator } from "../utils/qrcode";
 
 const chairRepository = AppDataSource.getRepository(Chairs);
 const userRepository = AppDataSource.getRepository(Users);
+const selectChairColumn = [
+  "chairs.id AS id",
+  "chairs.created_at AS created_at",
+  "chairs.updated_at AS updated_at",
+  "chairs.deleted_at AS deleted_at",
+  "chairs.label AS label",
+  "chairs.status AS status",
+  "chairs.chair_no AS chair_no",
+  "chairs.price AS price",
+  "chairs.customer_id AS customer_id",
+  "chairs.approve_by AS approve_by",
+  "chairs.user_id AS user_id",
+];
 
 export const createChairHandler = async (req: Request, res: Response) => {
   try {
@@ -56,19 +69,7 @@ export const getAllChairsHandler = async (req: Request, res: Response) => {
   try {
     const chairs = await chairRepository
       .createQueryBuilder("chairs")
-      .select([
-        "chairs.id AS id",
-        "chairs.created_at AS created_at",
-        "chairs.updated_at AS updated_at",
-        "chairs.deleted_at AS deleted_at",
-        "chairs.label AS label",
-        "chairs.status AS status",
-        "chairs.chair_no AS chair_no",
-        "chairs.price AS price",
-        "chairs.customer_id AS customer_id",
-        "chairs.approve_by AS approve_by",
-        "chairs.user_id AS user_id",
-      ])
+      .select(selectChairColumn)
       .where("chairs.deleted_at is null")
       .getRawMany();
 
@@ -91,19 +92,7 @@ export const getAllChairsWithDeskIDHandler = async (
 
     const chairs = await chairRepository
       .createQueryBuilder("chairs")
-      .select([
-        "chairs.id AS id",
-        "chairs.created_at AS created_at",
-        "chairs.updated_at AS updated_at",
-        "chairs.deleted_at AS deleted_at",
-        "chairs.label AS label",
-        "chairs.status AS status",
-        "chairs.chair_no AS chair_no",
-        "chairs.price AS price",
-        "chairs.customer_id AS customer_id",
-        "chairs.approve_by AS approve_by",
-        "chairs.user_id AS user_id",
-      ])
+      .select(selectChairColumn)
       .where("chairs.desk_id = :id", { id: deskID })
       .andWhere("chairs.deleted_at is null")
       .getRawMany();
@@ -127,20 +116,7 @@ export const getChairHandler = async (req: Request, res: Response) => {
   try {
     const chair = await chairRepository
       .createQueryBuilder("chairs")
-      .select([
-        "chairs.id AS id",
-        "chairs.created_at AS created_at",
-        "chairs.updated_at AS updated_at",
-        "chairs.deleted_at AS deleted_at",
-        "chairs.label AS label",
-        "chairs.status AS status",
-        "chairs.chair_no AS chair_no",
-        "chairs.price AS price",
-        "chairs.desk_id AS desk_id",
-        "chairs.customer_id AS customer_id",
-        "chairs.approve_by AS approve_by",
-        "chairs.user_id AS user_id",
-      ])
+      .select(selectChairColumn)
       .where("chairs.id = :id", { id: req.params.id })
       .andWhere("chairs.deleted_at is null")
       .getRawOne();
@@ -187,7 +163,6 @@ export const updateChairWithUserHandler = async (
     chair.status = input.status;
     chair.price = input.price;
     chair.customer_name = input.customer_name;
-    chair.approve_by = user.name;
     chair.user_id = userId;
 
     const updatedChair = await chairRepository.save(chair);

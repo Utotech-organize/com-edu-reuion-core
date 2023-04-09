@@ -3,9 +3,22 @@ import { Users } from "../entities/user.entity";
 import { removeValue, responseErrors } from "../utils/common";
 import { AppDataSource } from "../utils/data-source";
 import bcrypt from "bcryptjs";
-import { uploadFileToBase64, uploadFileToGoogleDrive } from "../utils/service";
+import { uploadFileToGoogleDrive } from "../utils/service";
 
 const userRepository = AppDataSource.getRepository(Users);
+const selectUserColumn = [
+  "users.id AS id",
+  "users.created_at AS created_at",
+  "users.updated_at AS updated_at",
+  "users.deleted_at AS deleted_at",
+  "users.email AS email",
+  "users.first_name AS first_name",
+  "users.last_name AS last_name",
+  "users.remark AS remark",
+  "users.tel AS tel",
+  "users.role AS role",
+  "users.photo_url AS photo_url",
+];
 
 export const registerUserHandler = async (req: Request, res: Response) => {
   try {
@@ -16,7 +29,8 @@ export const registerUserHandler = async (req: Request, res: Response) => {
       userRepository.create({
         email: email.toLowerCase(),
         password,
-        name: input.name,
+        first_name: input.first_name,
+        last_name: input.last_name,
         remark: input.remark,
         tel: input.tel,
         role: input.role,
@@ -58,18 +72,9 @@ export const getAllUsersHandler = async (req: Request, res: Response) => {
   try {
     const users = await userRepository
       .createQueryBuilder("users")
-      .select([
-        "users.id AS id",
-        "users.created_at AS created_at",
-        "users.updated_at AS updated_at",
-        "users.deleted_at AS deleted_at",
-        "users.email AS email",
-        "users.name AS name",
-        "users.remark AS remark",
-        "users.tel AS tel",
-        "users.role AS role",
-        "users.photo_url AS photo_url",
-      ])
+      .select(selectUserColumn)
+      .where("users.deleted_at is null")
+      .orderBy("users.id", "DESC")
       .getRawMany();
 
     removeValue(users[0], 0, users); // not show super admin
@@ -88,18 +93,7 @@ export const getUserHandler = async (req: Request, res: Response) => {
   try {
     const user = await userRepository
       .createQueryBuilder("users")
-      .select([
-        "users.id AS id",
-        "users.created_at AS created_at",
-        "users.updated_at AS updated_at",
-        "users.deleted_at AS deleted_at",
-        "users.email AS email",
-        "users.name AS name",
-        "users.remark AS remark",
-        "users.tel AS tel",
-        "users.role AS role",
-        "users.photo_url AS photo_url",
-      ])
+      .select(selectUserColumn)
       .where("users.id = :id", { id: req.params.id })
       .getRawOne();
 
@@ -133,7 +127,8 @@ export const updateUserHandler = async (req: Request, res: Response) => {
 
     user.photo_url = input.photo_url;
     user.email = input.email;
-    user.name = input.name;
+    user.first_name = input.first_name;
+    user.last_name = input.last_name;
     user.remark = input.remark;
     user.tel = input.tel;
     user.photo_url = input.photo_url;
@@ -198,19 +193,19 @@ export const updateReceiptByUser = async (req: Request, res: Response) => {
   }
 };
 
-export const uploadImageAndConvertToBase64 = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const file = req.file!;
-    const imageID = await uploadFileToBase64(file);
+// export const uploadImageAndConvertToBase64 = async (
+//   req: Request,
+//   res: Response
+// ) => {
+//   try {
+//     const file = req.file!;
+//     const imageID = await uploadFileToBase64(file);
 
-    res.status(200).json({
-      status: "success",
-      data: imageID,
-    });
-  } catch (err: any) {
-    return responseErrors(res, 400, "Can't upload image", err.message);
-  }
-};
+//     res.status(200).json({
+//       status: "success",
+//       data: imageID,
+//     });
+//   } catch (err: any) {
+//     return responseErrors(res, 400, "Can't upload image", err.message);
+//   }
+// };

@@ -31,9 +31,6 @@ export class Chairs extends Model {
   customer_name!: string;
 
   @Column({ nullable: true })
-  approve_by!: string;
-
-  @Column({ nullable: true })
   user_id!: number;
 
   @ManyToOne(() => Desks, (desk) => desk.chairs)

@@ -7,6 +7,8 @@ export const statusUnAvailable = "unavailable";
 export const statusPaid = "paid";
 export const statusUnPaid = "unpaid";
 export const statusComplete = "complete";
+export const channelDashboard = "dashboard";
+export const channelLine = "line";
 
 export const chairPrice = 350;
 export const tablePrice = 3200;
