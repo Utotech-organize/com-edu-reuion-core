@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.8](https://github.com/Tweed-tech/ComEduReuion-core/compare/v0.0.7...v0.0.8) (2023-04-09)
+
+
+### Features
+
+* **booking:** added booking and minor fixed ([8904719](https://github.com/Tweed-tech/ComEduReuion-core/commit/8904719866a47d944999ab7d0bf950463c6e241b))
+* **booking:** added booking and minor fixed ([2b21274](https://github.com/Tweed-tech/ComEduReuion-core/commit/2b212742708d624db61758f22f8d84139ccbaec3))
+
 ### [0.0.7](https://github.com/Tweed-tech/ComEduReuion-core/compare/v0.0.6...v0.0.7) (2023-04-09)
 
 
