@@ -13,7 +13,9 @@ const selectDeskColumn = [
   "desks.updated_at AS updated_at",
   "desks.deleted_at AS deleted_at",
   "desks.active AS active",
-  "desks.label AS label",
+  "desks.price AS price",
+  "desks.chair_price AS chair_price",
+  "desks.label AS label", //FIXME return price in desk
   "desks.status AS status",
 ];
 
