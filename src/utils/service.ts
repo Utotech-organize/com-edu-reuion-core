@@ -124,8 +124,6 @@ export const qrcodeGenerator = async (slug: any, params: any) => {
 
       const googleDriveURL = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
 
-      console.log(googleDriveURL);
-
       return googleDriveURL;
     } catch (err) {
       return err;

@@ -169,30 +169,6 @@ export const deleteUserHandler = async (req: Request, res: Response) => {
   }
 };
 
-export const updateReceiptByUser = async (req: Request, res: Response) => {
-  try {
-    const userId = req.user.id;
-    const file = req.file!;
-
-    const user = await userRepository.findOneBy({
-      id: userId,
-    });
-
-    if (!user) {
-      return responseErrors(res, 400, "User not found", "cannot find user");
-    }
-
-    const imageID = await uploadFileToGoogleDrive(file);
-
-    res.status(200).json({
-      status: "success",
-      imageID,
-    });
-  } catch (err: any) {
-    return responseErrors(res, 400, "Can't upload receipt", err.message);
-  }
-};
-
 // export const uploadImageAndConvertToBase64 = async (
 //   req: Request,
 //   res: Response
