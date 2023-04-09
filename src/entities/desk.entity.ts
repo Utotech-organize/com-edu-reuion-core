@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import Model from "./model.entity";
 import { Chairs } from "./chair.entity";
 import { Bookings } from "./booking.entity";
@@ -29,7 +29,6 @@ export class Desks extends Model {
   chair_price!: number;
 
   @OneToMany(() => Chairs, (chair) => chair.id)
-  @JoinColumn()
   chairs!: Chairs[];
 
   @OneToMany(() => Bookings, (booking) => booking.customer)

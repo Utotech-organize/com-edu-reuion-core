@@ -15,7 +15,7 @@ const selectDeskColumn = [
   "desks.active AS active",
   "desks.price AS price",
   "desks.chair_price AS chair_price",
-  "desks.label AS label", //FIXME return price in desk
+  "desks.label AS label",
   "desks.status AS status",
 ];
 
@@ -29,6 +29,7 @@ export const createDeskHandler = async (req: Request, res: Response) => {
       label: input.label,
       status: input.status,
       price: input.price,
+      chair_price: input.chair_price,
     } as Desks;
 
     const desks = await deskRepository.save(new_desk);
@@ -147,6 +148,8 @@ export const updateDeskHandler = async (req: Request, res: Response) => {
     desk.active = input.active;
     desk.label = input.label;
     desk.status = input.status;
+    desk.price = input.price;
+    desk.chair_price = input.chair_price;
 
     const updatedDesk = await deskRepository.save(desk);
 

@@ -1,5 +1,5 @@
 import Model from "./model.entity";
-import { Column, Entity, Generated, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { Desks } from "./desk.entity";
 import { Customers } from "./customer.entity";
 
@@ -34,6 +34,5 @@ export class Bookings extends Model {
   customer!: Customers;
 
   @ManyToOne(() => Desks, (desk) => desk.bookings)
-  @JoinColumn()
   desk!: Desks;
 }
