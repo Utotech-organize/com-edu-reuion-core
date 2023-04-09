@@ -6,7 +6,6 @@ import {
   registerUserHandler,
   updateReceiptByUser,
   updateUserHandler,
-  uploadImageAndConvertToBase64,
 } from "../controllers/user.controller";
 import { verifyJwt } from "../utils/jwt";
 import { uploadFilter } from "../utils/common";
@@ -22,13 +21,5 @@ router.route("/").get(getAllUsersHandler);
 router.route("/:id").get(getUserHandler);
 router.route("/edit/:id").put(updateUserHandler);
 router.route("/delete/:id").delete(deleteUserHandler);
-
-router
-  .route("/upload/receipt")
-  .post(uploadFilter.single("file"), updateReceiptByUser);
-
-router
-  .route("/upload")
-  .post(uploadFilter.single("file"), uploadImageAndConvertToBase64);
 
 export default router;

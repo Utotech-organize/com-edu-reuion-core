@@ -1,7 +1,7 @@
 import { Entity, Column, Index, BeforeInsert, OneToMany } from "typeorm";
 import Model from "./model.entity";
-import { Chairs } from "./chair.entity";
 import { Bookings } from "./booking.entity";
+import { channelDashboard } from "../utils/common";
 
 @Entity("customers")
 export class Customers extends Model {
@@ -37,6 +37,12 @@ export class Customers extends Model {
 
   @Column({})
   status!: string;
+
+  @Column({
+    nullable: false,
+    default: channelDashboard,
+  })
+  channel!: string;
 
   @Column({
     default: "customer",

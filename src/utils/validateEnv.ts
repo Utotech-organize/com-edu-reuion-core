@@ -13,6 +13,8 @@ const validateEnv = () => {
     JWT_ACCESS_TOKEN_PUBLIC_KEY: str(),
     SUPER_ADMIN_EMAIL: str(),
     SUPER_ADMIN_PASSWORD: str(),
+    CREDENTIAL_GOOGLE: str(),
+    SERVICE_DRIVE_ID: str(),
   });
 };
 

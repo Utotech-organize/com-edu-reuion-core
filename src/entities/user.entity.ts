@@ -16,7 +16,12 @@ export class Users extends Model {
   @Column({
     nullable: false,
   })
-  name!: string; // fistname and lastname
+  first_name!: string;
+
+  @Column({
+    nullable: true,
+  })
+  last_name!: string;
 
   @Column({
     nullable: true,

@@ -1,4 +1,3 @@
-import { Request, Response } from "express";
 import { google } from "googleapis";
 import stream from "stream"; // Added
 require("dotenv").config();
@@ -11,7 +10,10 @@ const auth = new google.auth.GoogleAuth({
     client_email: obj.client_email,
     client_id: obj.client_id,
   },
-  scopes: ["https://www.googleapis.com/auth/drive.file"],
+  scopes: [
+    "https://www.googleapis.com/auth/drive.file",
+    // "https://www.googleapis.com/auth/drive.readonly",
+  ],
 });
 
 const drive = google.drive({
@@ -20,15 +22,13 @@ const drive = google.drive({
 });
 
 export const uploadFileToGoogleDrive = async (file: any, user: any) => {
-  console.log(file);
-
   const fileMetadata = {
     name: `(${user.name})-${file.originalname}`,
     parents: [process.env.SERVICE_DRIVE_ID ?? ""],
   };
 
-  const bs = new stream.PassThrough(); // Added
-  bs.end(file.buffer); // Added
+  const bs = new stream.PassThrough();
+  bs.end(file.buffer);
 
   const media = {
     mimeType: file.mimetype,
@@ -48,10 +48,16 @@ export const uploadFileToGoogleDrive = async (file: any, user: any) => {
   }
 };
 
-export const uploadFileToBase64 = async (file: any) => {
-  let base64data = file.buffer.toString("base64");
+// const oauth2Client = new google.auth.OAuth2(
+//   obj.client_id,
+//   "CLIENT_SECRET",
+//   "www.google.com"
+// );
 
-  // console.log(base64data);
+// // Set the access token credentials for the client.
+// oauth2Client.setCredentials({
+//   access_token: "ACCESS_TOKEN",
+//   refresh_token: "REFRESH_TOKEN",
+// });
 
-  return base64data;
-};
+// export const getImageFromGoogleDrive = () => {};

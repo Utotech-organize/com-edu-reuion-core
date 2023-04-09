@@ -14,9 +14,10 @@ import customerRouter from "./routes/customer.routes";
 
 import validateEnv from "./utils/validateEnv";
 import { Users } from "./entities/user.entity";
-import { responseErrors } from "./utils/common";
+import { responseErrors, uploadFilter } from "./utils/common";
 import { initDeskAndChairs } from "./utils/mock-default-data";
 import { Desks } from "./entities/desk.entity";
+import { uploadFileHandler } from "./controllers/booking.contorller";
 
 const deskRepository = AppDataSource.getRepository(Desks);
 
@@ -49,14 +50,16 @@ AppDataSource.initialize()
     if (user.length === 0) {
       console.log("Inserting a new super admin into the database...");
       const user = new Users();
-      user.email = process.env.SUPER_ADMIN_EMAIL ?? "";
-      user.password = process.env.SUPER_ADMIN_PASSWORD ?? "";
-      user.name = "super admin";
+      user.email = (process.env.SUPER_ADMIN_EMAIL as string) ?? "";
+      user.password = (process.env.SUPER_ADMIN_PASSWORD as string) ?? "";
+      user.first_name = "super";
+      user.last_name = "admin";
       user.remark = "this is super admin for development";
       user.tel = "-";
       user.role = "super_admin";
 
-      await AppDataSource.manager.save(user);
+      await userRepository.save(user);
+
       console.log("Init Super admin");
     }
 
@@ -67,6 +70,7 @@ AppDataSource.initialize()
     app.use("/api/customers", customerRouter);
     app.use("/api/users", userRouter);
     app.use("/api/auth", authRouter);
+    app.post("/upload", uploadFilter.single("file"), uploadFileHandler);
 
     // set up mock updata
     const desks = await deskRepository.createQueryBuilder("desks").getMany();

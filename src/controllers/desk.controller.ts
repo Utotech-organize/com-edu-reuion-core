@@ -7,6 +7,15 @@ import { Chairs } from "../entities/chair.entity";
 
 const deskRepository = AppDataSource.getRepository(Desks);
 const chairRepository = AppDataSource.getRepository(Chairs);
+const selectDeskColumn = [
+  "desks.id AS id",
+  "desks.created_at AS created_at",
+  "desks.updated_at AS updated_at",
+  "desks.deleted_at AS deleted_at",
+  "desks.active AS active",
+  "desks.label AS label",
+  "desks.status AS status",
+];
 
 export const createDeskHandler = async (req: Request, res: Response) => {
   try {
@@ -76,16 +85,9 @@ export const getAllDesksHandler = async (req: Request, res: Response) => {
   try {
     const desks = await deskRepository
       .createQueryBuilder("desks")
-      .select([
-        "desks.id AS id",
-        "desks.created_at AS created_at",
-        "desks.updated_at AS updated_at",
-        "desks.deleted_at AS deleted_at",
-        "desks.active AS active",
-        "desks.label AS label",
-        "desks.status AS status",
-      ])
+      .select(selectDeskColumn)
       .where("desks.deleted_at is null")
+      .orderBy("desks.id", "ASC")
       .getRawMany();
 
     res.status(200).json({
