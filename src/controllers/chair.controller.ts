@@ -4,7 +4,6 @@ import { Chairs } from "../entities/chair.entity";
 import { AppDataSource } from "../utils/data-source";
 import { responseErrors } from "../utils/common";
 import { Users } from "../entities/user.entity";
-import { qrcodeGenerator } from "../utils/qrcode";
 
 const chairRepository = AppDataSource.getRepository(Chairs);
 const userRepository = AppDataSource.getRepository(Users);
@@ -18,7 +17,6 @@ const selectChairColumn = [
   "chairs.chair_no AS chair_no",
   "chairs.price AS price",
   "chairs.customer_id AS customer_id",
-  "chairs.approve_by AS approve_by",
   "chairs.user_id AS user_id",
 ];
 
@@ -134,7 +132,7 @@ export const getChairHandler = async (req: Request, res: Response) => {
   }
 };
 
-// updateChairWithUserHandler with user approve
+// updateChairWithUserHandler with user
 export const updateChairWithUserHandler = async (
   req: Request,
   res: Response

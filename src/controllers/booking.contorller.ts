@@ -170,13 +170,6 @@ export const updateChairWithDeskHandler = async (
 
 export const getAllBookingsHandler = async (req: Request, res: Response) => {
   try {
-    // const bookings = await bookingRepository
-    //   .createQueryBuilder("bookings").relation("")
-    //   .select(selectBookingsColumn)
-    //   .where("bookings.deleted_at is null")
-    //   .orderBy("bookings.id", "DESC")
-    //   .getRawMany();
-
     const bookings = await bookingRepository.find({
       relations: ["customer", "desk"],
       order: { id: "DESC" },
@@ -191,24 +184,6 @@ export const getAllBookingsHandler = async (req: Request, res: Response) => {
     return responseErrors(res, 400, "Can't get all Bookings", err.message);
   }
 };
-
-// export const getAllBookingsHandler = async (req: Request, res: Response) => {
-//   try {
-//     const booking = await bookingRepository
-//       .createQueryBuilder("bookings")
-//       .select(selectBookingsColumn)
-//       .where("bookings.deleted_at is null")
-//       .getRawMany();
-
-//     res.status(200).json({
-//       status: "success",
-//       results: booking.length,
-//       data: booking,
-//     });
-//   } catch (err: any) {
-//     return responseErrors(res, 400, "Can't get all Bookings", err.message);
-//   }
-// };
 
 export const getSingleBookingsHandler = async (req: Request, res: Response) => {
   try {

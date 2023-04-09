@@ -20,6 +20,9 @@ export class Bookings extends Model {
   @Column({ nullable: true })
   total!: number;
 
+  @Column({ nullable: true })
+  qrcode_image!: string;
+
   @ManyToOne(() => Customers, (customer) => customer.bookings)
   customer!: Customers;
 
