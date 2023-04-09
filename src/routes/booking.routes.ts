@@ -24,12 +24,12 @@ router.use(verifyJwt);
 
 router.route("/").get(getAllBookingsHandler);
 
-router
-  .route("/upload/receipt")
-  .post(uploadFilter.single("file"), uploadFileHandler);
-
 router.route("/edit/:id").put(updateBookingWithUserHandler);
 router.route("/delete/:id").delete(rejectBookingHandler);
 router.route("/chairs/desk/:id").get(getAllChairsWithDeskIDHandler);
+
+router
+  .route("/upload/receipt")
+  .post(uploadFilter.single("file"), uploadFileHandler);
 
 export default router;

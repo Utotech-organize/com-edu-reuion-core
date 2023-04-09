@@ -23,6 +23,7 @@ const selectCustomerColumn = [
   "customers.first_name AS first_name",
   "customers.last_name AS last_name",
   "customers.generation AS generation",
+  "customers.channel AS channel",
   "customers.status AS status",
   "customers.information AS information",
   "customers.email AS email",
@@ -54,6 +55,8 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
       ct.information = input.information;
       ct.email = input.email;
       ct.status = input.status;
+      ct.channel = input.channel;
+
       message = "customer have been updated";
 
       customer = await customerRepository.save(ct);
@@ -68,6 +71,7 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
         generation: input.generation,
         information: input.information,
         email: input.email,
+        channel: input.channel,
         status: "",
       } as Customers;
 
@@ -241,7 +245,7 @@ export const deleteCustomerHandler = async (req: Request, res: Response) => {
       );
     }
 
-    await deskRepository.delete(customer.id); //FIXME
+    await deskRepository.softDelete(customer.id); //FIXME
 
     res.status(204).json({
       status: "success",

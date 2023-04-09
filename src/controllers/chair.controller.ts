@@ -30,6 +30,7 @@ export const createChairHandler = async (req: Request, res: Response) => {
         label: input.label,
         status: input.status,
         price: input.price,
+        chair_no: input.chair_no,
       })
     );
 
@@ -160,6 +161,7 @@ export const updateChairWithUserHandler = async (
     chair.label = input.label;
     chair.status = input.status;
     chair.price = input.price;
+    chair.chair_no = input.chair_no;
     chair.customer_name = input.customer_name;
     chair.user_id = userId;
 
