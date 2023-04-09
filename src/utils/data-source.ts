@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import config from "config";
 
-const isDevelopment = process.env.NODE_ENV === "development";
+const isDevelopment = process.env.APP_ENV === "development";
 
 const postgresConfig = config.get<{
   host: string;

@@ -218,6 +218,7 @@ export const updateCustomerHandler = async (req: Request, res: Response) => {
     customer.information = input.information;
     customer.email = input.email;
     customer.status = input.status;
+    customer.line_photo_url = input.line_photo_url;
 
     const updatedCustomer = await customerRepository.save(customer);
 

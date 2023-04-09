@@ -32,7 +32,7 @@ AppDataSource.initialize()
     app.use(express.json({ limit: "10mb" }));
 
     // 2. Logger
-    if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
+    if (process.env.APP_ENV === "development") app.use(morgan("dev"));
 
     // 3. Cors
     app.use(
