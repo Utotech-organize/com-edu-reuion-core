@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.7](https://github.com/Tweed-tech/ComEduReuion-core/compare/v0.0.6...v0.0.7) (2023-04-09)
+
+
+### Features
+
+* **booking:** fixed and feat booking feature with error handling ([ad35b15](https://github.com/Tweed-tech/ComEduReuion-core/commit/ad35b153873812f239fe1ac971a4debfb9375af9))
+* **qrcode:** added qrcode in booking ([47fb672](https://github.com/Tweed-tech/ComEduReuion-core/commit/47fb67266ac85721065a39c76178aef361c5345f))
+* **qrcode:** added qrcode return in create booking ([0bc1010](https://github.com/Tweed-tech/ComEduReuion-core/commit/0bc101002d95730a7f7b8e3ac3ff57d28cf5fc70))
+* **upload:** added upload image to google drive ([b5d157a](https://github.com/Tweed-tech/ComEduReuion-core/commit/b5d157a5a4c64fd2777efc0c7682793cdc7ddad2))
+* **upload:** upload qrcode to google drive ([cc769d9](https://github.com/Tweed-tech/ComEduReuion-core/commit/cc769d97d72876cb26539e970bfe2f713d03c3ce))
+
+
+### Bug Fixes
+
+* **chair:** fixed get chair with desk id with remove approve ([72fdf3c](https://github.com/Tweed-tech/ComEduReuion-core/commit/72fdf3c75739cb81ead66ec53426c398477d219a))
+* **error:** fixed build fail ([4c1937c](https://github.com/Tweed-tech/ComEduReuion-core/commit/4c1937c61665c0e94115a86d363f50bf87efac4e))
+* **tableprice:** added logic chair with table price ([0635ff9](https://github.com/Tweed-tech/ComEduReuion-core/commit/0635ff98f3b1026110036ec4946e33441ced0830))
+
 ### [0.0.6](https://github.com/Tweed-tech/ComEduReuion-core/compare/v0.0.5...v0.0.6) (2023-04-09)
 
 
