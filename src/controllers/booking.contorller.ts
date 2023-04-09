@@ -184,6 +184,17 @@ export const getAllBookingsHandler = async (req: Request, res: Response) => {
     const bookings = await bookingRepository.find({
       relations: ["customer", "desk"],
       order: { id: "DESC" },
+      select: [
+        "id",
+        "created_at",
+        "updated_at",
+        "status",
+        "payment_status",
+        "inspector",
+        "total",
+        "customer",
+        "desk",
+      ],
     });
 
     res.status(200).json({
