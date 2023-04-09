@@ -12,7 +12,7 @@ export const initDeskAndChairs = async () => {
 
   const desks = await deskRepository.save(mockdata);
 
-  desks.forEach(async (desk) => {
+  desks.map(async (desk) => {
     let chairs;
     let input_chairs: any = desk.chairs;
     let new_chairs: Chairs[] = [];
