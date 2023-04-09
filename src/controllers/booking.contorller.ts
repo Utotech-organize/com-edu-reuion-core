@@ -14,7 +14,6 @@ import { Customers } from "../entities/customer.entity";
 import { Desks } from "../entities/desk.entity";
 import { Chairs } from "../entities/chair.entity";
 import { Users } from "../entities/user.entity";
-import { uploadFileToGoogleDrive } from "../utils/service";
 import uuid from "../utils/uuid";
 
 const bookingRepository = AppDataSource.getRepository(Bookings);
@@ -302,26 +301,6 @@ export const generateQrcodeWithChairID = async (
       err.message
     );
   }
-};
-
-export const uploadFileHandler = async (req: Request, res: Response) => {
-  const user_id = req.user.id;
-  const file = req.file;
-
-  const user = await userRepository.findOneBy({
-    id: user_id as any,
-  });
-
-  if (!user) {
-    return responseErrors(res, 400, "User not found", "cannot find user");
-  }
-
-  const imageID = await uploadFileToGoogleDrive(file, user);
-
-  res.status(200).json({
-    status: "success",
-    data: imageID,
-  });
 };
 
 export const updateBookingWithUserHandler = async (

@@ -12,19 +12,19 @@ const auth = new google.auth.GoogleAuth({
   },
   scopes: [
     "https://www.googleapis.com/auth/drive.file",
-    // "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/drive.readonly",
   ],
 });
 
-const drive = google.drive({
+export const drive = google.drive({
   version: "v3",
   auth: auth,
 });
 
-export const uploadFileToGoogleDrive = async (file: any, user: any) => {
+export const uploadFileToGoogleDrive = async (file: any) => {
   const fileMetadata = {
-    name: `(${user.name})-${file.originalname}`,
-    parents: [process.env.SERVICE_DRIVE_ID ?? ""],
+    name: `${file.originalname}`,
+    parents: [process.env.SERVICE_DRIVE_ID_USER ?? ""],
   };
 
   const bs = new stream.PassThrough();
@@ -42,22 +42,56 @@ export const uploadFileToGoogleDrive = async (file: any, user: any) => {
       fields: "id",
     });
 
-    return response.data;
+    const googleDriveURL = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
+
+    return googleDriveURL;
   } catch (error) {
     return error;
   }
 };
 
-// const oauth2Client = new google.auth.OAuth2(
-//   obj.client_id,
-//   "CLIENT_SECRET",
-//   "www.google.com"
-// );
+export const uploadFileToGoogleDriveWithUser = async (
+  file: any,
+  user_firstname: any
+) => {
+  const fileMetadata = {
+    name: `(${user_firstname})-${file.originalname}`,
+    parents: [process.env.SERVICE_DRIVE_ID_RECEIPT ?? ""],
+  };
 
-// // Set the access token credentials for the client.
-// oauth2Client.setCredentials({
-//   access_token: "ACCESS_TOKEN",
-//   refresh_token: "REFRESH_TOKEN",
-// });
+  const bs = new stream.PassThrough();
+  bs.end(file.buffer);
 
-// export const getImageFromGoogleDrive = () => {};
+  const media = {
+    mimeType: file.mimetype,
+    body: bs, // Modified
+  };
+
+  try {
+    const response = await drive.files.create({
+      requestBody: fileMetadata,
+      media: media,
+      fields: "id",
+    });
+
+    const googleDriveURL = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
+
+    return googleDriveURL;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getFileInGoogleDrive = async (fileID: any) => {
+  const googleDriveURL = `https://drive.google.com/uc?export=view&id=${fileID}`;
+  return googleDriveURL;
+};
+
+export const convertFileToBase64 = async (file: any) => {
+  const b64 = Buffer.from(file.buffer).toString("base64");
+  const mimeType = "image/png"; // e.g., image/png
+
+  const res = "data:" + mimeType + ";base64," + b64;
+
+  return res;
+};

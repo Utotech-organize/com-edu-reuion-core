@@ -182,7 +182,7 @@ export const updateReceiptByUser = async (req: Request, res: Response) => {
       return responseErrors(res, 400, "User not found", "cannot find user");
     }
 
-    const imageID = await uploadFileToGoogleDrive(file, user);
+    const imageID = await uploadFileToGoogleDrive(file);
 
     res.status(200).json({
       status: "success",
