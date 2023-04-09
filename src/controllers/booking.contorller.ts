@@ -15,6 +15,7 @@ import { Desks } from "../entities/desk.entity";
 import { Chairs } from "../entities/chair.entity";
 import { Users } from "../entities/user.entity";
 import { uploadFileToGoogleDrive } from "../utils/service";
+import uuid from "../utils/uuid";
 
 const bookingRepository = AppDataSource.getRepository(Bookings);
 const customerRepository = AppDataSource.getRepository(Customers);
@@ -37,74 +38,84 @@ const selectBookingsColumn = [
 export const createBookingHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
+    let newBooking: any;
 
-    const customer = await customerRepository.findOne({
-      where: { id: input.customer_id },
-    });
-    if (!customer) {
-      return responseErrors(
-        res,
-        400,
-        "Customer not found",
-        "cannot find customer"
-      );
-    }
-
-    const desk = await deskRepository.findOne({ where: { id: input.desk_id } });
-    if (!desk) {
-      return responseErrors(res, 400, "Desk not found", "cannot find desk");
-    }
-
-    const chairsWithDesks = await chairRepository
-      .createQueryBuilder("chairs")
-      .leftJoinAndSelect("chairs.desk", "desk")
-      .where("chairs.desk_id = :desk_id", { desk_id: desk.id })
-      .getMany();
-
-    const unBookingChairs = chairsWithDesks.filter(
-      (c: any) =>
-        input.chairs_id.indexOf(c.id) > -1 &&
-        (c.status === statusPending || c.status === statusUnAvailable)
-    );
-
-    if (unBookingChairs.length > 0) {
-      return responseErrors(
-        res,
-        400,
-        "Cannot Bookings this chairs",
-        "chairs pedding is duplicate"
-      );
-    }
-
-    let chairPrice = 0;
-
-    chairsWithDesks.forEach((chair: any, index: number) => {
-      if (chair.status !== statusPending) {
-        if (input.chairs_id[index] == chair.id) {
-          chair.status = statusPending;
-          chair.customer_id = customer.id;
-          chairPrice = chairPrice + chair.price;
-
-          chairRepository.save(chair);
-        }
+    await AppDataSource.transaction(async (transactionalEntityManager) => {
+      const customer = await customerRepository.findOne({
+        where: { id: input.customer_id },
+      });
+      if (!customer) {
+        return responseErrors(
+          res,
+          400,
+          "Customer not found",
+          "cannot find customer"
+        );
       }
+
+      const desk = await deskRepository.findOne({
+        where: { id: input.desk_id },
+      });
+      if (!desk) {
+        return responseErrors(res, 400, "Desk not found", "cannot find desk");
+      }
+
+      const chairsWithDesks = await chairRepository
+        .createQueryBuilder("chairs")
+        .leftJoinAndSelect("chairs.desk", "desk")
+        .where("chairs.desk_id = :desk_id", { desk_id: desk.id })
+        .getMany();
+
+      const unBookingChairs = chairsWithDesks.filter(
+        (c: any) =>
+          input.chairs_id.indexOf(c.id) > -1 &&
+          (c.status === statusPending || c.status === statusUnAvailable)
+      );
+
+      if (unBookingChairs.length > 0) {
+        return responseErrors(
+          res,
+          400,
+          "Cannot Bookings this chairs",
+          "chairs pending is duplicate"
+        );
+      }
+
+      let chairPrice = 0;
+
+      chairsWithDesks.forEach((chair: any, index: number) => {
+        if (chair.status !== statusPending) {
+          if (input.chairs_id[index] == chair.id) {
+            chair.status = statusPending;
+            chair.customer_id = customer.id;
+            chairPrice = chairPrice + chair.price;
+
+            chairRepository.save(chair);
+          }
+        }
+      });
+
+      desk.active = true;
+      desk.status = statusPending;
+
+      await deskRepository.save(desk);
+      const bookingSlug: string = uuid();
+
+      const qrcodeImage = await qrcodeGenerator(bookingSlug);
+
+      let new_booking = {
+        slug: bookingSlug,
+        status: statusPending,
+        payment_status: statusUnPaid,
+        inspector: "",
+        customer: customer,
+        desk: desk,
+        total: chairPrice,
+        qrcode_image: qrcodeImage,
+      } as Bookings;
+
+      newBooking = await bookingRepository.save(new_booking);
     });
-
-    desk.active = true;
-    desk.status = statusPending;
-
-    await deskRepository.save(desk);
-
-    let new_booking = {
-      status: statusPending,
-      payment_status: statusUnPaid,
-      inspector: "",
-      customer: customer,
-      desk: desk,
-      total: chairPrice,
-    } as Bookings;
-
-    const newBooking = await bookingRepository.save(new_booking);
 
     try {
       res.status(200).json({
@@ -266,7 +277,7 @@ export const generateQrcodeWithChairID = async (
   res: Response
 ) => {
   try {
-    const qrcode = await qrcodeGenerator(req.params.id);
+    const qrcode = qrcodeGenerator(req.params.id);
 
     res.status(200).json({
       status: "success",
