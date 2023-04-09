@@ -41,6 +41,7 @@ export const createDeskHandler = async (req: Request, res: Response) => {
 
     for (var i of input_chairs) {
       let chairTemp = {
+        chair_no: i.chair_no,
         label: i.label,
         status: i.status,
         price: i.price,
