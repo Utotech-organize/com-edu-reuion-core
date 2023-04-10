@@ -35,6 +35,7 @@ const selectBookingsColumn = [
   "bookings.chairs_id AS chairs_id",
   "bookings.total AS total",
   "bookings.qrcode_image AS qrcode_image", //FIXME remove when production
+  "bookings.image_url AS image_url", //FIXME remove when production
   "bookings.customer AS customer",
   "bookings.desk AS desk",
 ];
