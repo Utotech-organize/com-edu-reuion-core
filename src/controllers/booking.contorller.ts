@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import {
+import uuid, {
   responseErrors,
   statusAvailable,
   statusComplete,
@@ -13,7 +13,6 @@ import { Customers } from "../entities/customer.entity";
 import { Desks } from "../entities/desk.entity";
 import { Chairs } from "../entities/chair.entity";
 import { Users } from "../entities/user.entity";
-import uuid from "../utils/uuid";
 import { qrcodeGenerator } from "../utils/service";
 import _ from "lodash";
 

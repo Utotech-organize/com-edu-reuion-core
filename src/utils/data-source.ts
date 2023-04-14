@@ -3,8 +3,6 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import config from "config";
 
-const isDevelopment = process.env.APP_ENV === "development";
-
 const postgresConfig = config.get<{
   host: string;
   port: number;
@@ -16,8 +14,8 @@ const postgresConfig = config.get<{
 export const AppDataSource = new DataSource({
   ...postgresConfig,
   type: "postgres",
-  synchronize: isDevelopment ? true : false,
-  logging: isDevelopment ? true : false,
+  synchronize: true,
+  logging: false,
   entities: ["src/entities/**/*.entity{.ts,.js}"],
   migrations: ["src/migrations/**/*{.ts,.js}"],
   subscribers: ["src/subscribers/**/*{.ts,.js}"],
