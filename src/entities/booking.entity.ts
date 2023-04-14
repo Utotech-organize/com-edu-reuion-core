@@ -21,6 +21,9 @@ export class Bookings extends Model {
   chairs_id!: string;
 
   @Column({ nullable: true })
+  chairs_label!: string;
+
+  @Column({ nullable: true })
   total!: number;
 
   @Column({ nullable: true })

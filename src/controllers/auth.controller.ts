@@ -74,8 +74,8 @@ export const loginCustomerWithLiffHandler = async (
 
 export const loginUserHandler = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
-    const user = await userRepository.findOneBy({ email });
+    const { username, password } = req.body;
+    const user = await userRepository.findOneBy({ email: username });
 
     if (!user) {
       return responseErrors(res, 400, "User not found", "cannot find user");

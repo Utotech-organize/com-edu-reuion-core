@@ -32,7 +32,7 @@ AppDataSource.initialize()
     app.use(express.json({ limit: "10mb" }));
 
     // 2. Logger
-    if (process.env.APP_ENV === "development") app.use(morgan("dev"));
+    if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
     // 3. Cors
     app.use(
@@ -57,6 +57,8 @@ AppDataSource.initialize()
       user.remark = "this is super admin for development";
       user.tel = "-";
       user.role = "super_admin";
+      user.image_url =
+        "https://drive.google.com/uc?export=view&id=1X397QtEgZ76TDYBZKaIBce0xKRnnkHD9";
 
       await userRepository.save(user);
 

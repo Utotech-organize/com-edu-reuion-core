@@ -98,9 +98,14 @@ export const convertFileToBase64 = async (file: any) => {
   return res;
 };
 
+const qrOptions = {
+  width: 300,
+  height: 300,
+};
+
 export const qrcodeGenerator = async (slug: any, params: any) => {
   try {
-    const qrdata = await QRCode.toBuffer("comedu-reunion:" + slug);
+    const qrdata = await QRCode.toBuffer("comedu-reunion:" + slug, qrOptions);
 
     const fileMetadata = {
       name: `${params.label}-(${params.first_name})-${slug}`,
