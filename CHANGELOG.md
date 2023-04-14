@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/Tweed-tech/ComEduReuion-core/compare/v0.0.12...v1.0.1) (2023-04-14)
+
+
+### Bug Fixes
+
+* **booking:** fixed approve booking for update desk ([a2a56b2](https://github.com/Tweed-tech/ComEduReuion-core/commit/a2a56b2a9fb873852c0cadddae152d4ece2a4a53))
+* **bookings:** fixed query for booking ([9503a51](https://github.com/Tweed-tech/ComEduReuion-core/commit/9503a51488da244c24c803d5b8de0c0965fda5ce))
+* **qrcode:** fixed option size for qrcode ([c63f6b1](https://github.com/Tweed-tech/ComEduReuion-core/commit/c63f6b1988ec305d30efa9d53c178f0c978d7bcc))
+* **reject:** fixed reject booking ([c5d775a](https://github.com/Tweed-tech/ComEduReuion-core/commit/c5d775a316f4b29890af2be79b2b96a665f27732))
+* **user:** fixed user bug when login ([70f5330](https://github.com/Tweed-tech/ComEduReuion-core/commit/70f5330b8119acf2a6e22b6eb225fc9add45159f))
+
 ### 0.0.13 (2023-04-14)
 
 
