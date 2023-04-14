@@ -62,9 +62,12 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
       customer = await customerRepository.save(ct);
     } else {
       let new_customer = {
-        line_liff_id: input.line_liff_id,
-        line_display_name: input.line_display_name,
-        line_photo_url: input.line_photo_url,
+        line_liff_id:
+          input.line_liff_id != "undefined" ? input.line_liff_id : "",
+        line_display_name:
+          input.line_display_name != "undefined" ? input.line_display_name : "",
+        line_photo_url:
+          input.line_photo_url != "undefined" ? input.line_photo_url : "",
         tel: input.tel,
         first_name: input.first_name,
         last_name: input.last_name,
