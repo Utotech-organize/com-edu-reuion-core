@@ -38,7 +38,7 @@ AppDataSource.initialize()
     app.use(
       cors({
         origin: "*",
-        credentials: false,
+        credentials: true,
         methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
       })
     );
