@@ -58,7 +58,7 @@ AppDataSource.initialize()
       user.tel = "-";
       user.role = "super_admin";
       user.image_url =
-        "https://drive.google.com/file/d/1ETUF65f_sDoQwhcyqNpGwHRQqD_fQvr7/preview";
+        "https://drive.google.com/uc?export=view&id=1X397QtEgZ76TDYBZKaIBce0xKRnnkHD9";
 
       await userRepository.save(user);
 
