@@ -90,7 +90,6 @@ export const getAllDesksHandler = async (req: Request, res: Response) => {
     const desks = await deskRepository
       .createQueryBuilder("desks")
       .select(selectDeskColumn)
-      // .where("desks.deleted_at is null")
       .orderBy("desks.id", "ASC")
       .getRawMany();
 
@@ -108,8 +107,6 @@ export const getDeskHandler = async (req: Request, res: Response) => {
   try {
     const Desk = await deskRepository.findOneBy({
       id: req.params.id as any,
-      active: true,
-      // deleted_at: undefined,
     });
 
     if (!Desk) {

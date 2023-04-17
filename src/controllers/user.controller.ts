@@ -154,7 +154,7 @@ export const deleteUserHandler = async (req: Request, res: Response) => {
       return responseErrors(res, 400, "User not found", "cannot find user");
     }
 
-    await userRepository.delete(user.id); //FIXME
+    await userRepository.softDelete(user.id); //FIXME
 
     res.status(204).json({
       status: "success",

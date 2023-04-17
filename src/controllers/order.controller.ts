@@ -4,6 +4,7 @@ import { AppDataSource } from "../utils/data-source";
 import { Orders } from "../entities/order.entity";
 import { Customers } from "../entities/customer.entity";
 import { Products } from "../entities/product.entity";
+import { OrdersDetails } from "../entities/order_details.entity";
 
 const orderRepository = AppDataSource.getRepository(Orders);
 const selectOrderColumn = [
@@ -17,6 +18,19 @@ const selectOrderColumn = [
   "orders.desk_label AS desk_label",
   "orders.status AS status",
   "orders.products AS products",
+];
+
+const productRepository = AppDataSource.getRepository(Products);
+const selectProductColumn = [
+  "products.id AS id",
+  "products.active AS active",
+  "products.created_at AS created_at",
+  "products.updated_at AS updated_at",
+  "products.deleted_at AS deleted_at",
+  "products.label AS label",
+  "products.quantity AS quantity",
+  "products.price AS price",
+  "products.ordering AS ordering",
 ];
 
 const customerRepository = AppDataSource.getRepository(Customers);
@@ -61,35 +75,49 @@ export const createOrderHandler = async (req: Request, res: Response) => {
       );
     }
 
-    console.log(input);
+    const order = new Orders();
+    order.total_price = 0;
+    order.line_liff_id = input.line_liff_id;
+    order.desk_label = input.desk_label;
+    order.remark = input.remark;
+    order.status = input.status;
 
-    // let product: Products[] = [];
-
-    //   const product = await productRepository
-    //     .createQueryBuilder("products")
-    //     .select(selectProductColumn)
-    //     .where("products.id = :id", { id: req.params.id })
-    //     .getRawOne();
-
+    let product_id: any[] = [];
     for (var v of products) {
-      // let chairTemp = {
-      //   chair_no: i.chair_no,
-      //   label: i.label,
-      //   status: i.status,
-      //   price: i.price,
-      //   desk: {
-      //     id: desks.id,
-      //   } as Desks,
-      // } as Chairs;
-      // product.push(chairTemp);
+      product_id.push(v.id);
     }
+
+    const productsData = await productRepository
+      .createQueryBuilder("products")
+      .whereInIds(product_id)
+      .getMany();
+
+    const orderDetails = productsData.map((product: any, idx: any) => {
+      let orderDetail = new OrdersDetails();
+
+      orderDetail.product = product;
+      orderDetail.quantity = products[idx].quantity;
+      orderDetail.order = order;
+      order.total_price += product.price;
+      return orderDetail;
+    });
+
+    let newOrder;
+    let newOrderDetails;
+
+    await AppDataSource.transaction(async (transactionalEntityManager: any) => {
+      const orderRepository = transactionalEntityManager.getRepository(Orders);
+      const orderDetailRepository =
+        transactionalEntityManager.getRepository(OrdersDetails);
+      newOrder = await orderRepository.save(order);
+      newOrderDetails = await orderDetailRepository.save(orderDetails);
+    });
 
     try {
       res.status(200).json({
         status: "success",
-        // id: newOrder.id,
-        // message: "Order has been created",
-        // data: newOrder,
+        message: "Order has been created",
+        data: newOrder,
       });
     } catch (err: any) {
       return responseErrors(
@@ -125,19 +153,22 @@ export const getAllOrdersHandler = async (req: Request, res: Response) => {
 
 export const getSingleOrderHandler = async (req: Request, res: Response) => {
   try {
-    const Order = await orderRepository
-      .createQueryBuilder("orders")
-      .select(selectOrderColumn)
-      .where("orders.id = :id", { id: req.params.id })
-      .getRawOne();
+    const liffID = req.headers.token;
 
-    if (!Order) {
+    const order = await orderRepository
+      .createQueryBuilder("orders")
+      .leftJoinAndSelect("orders.order_details", "ordersDetails")
+      .leftJoinAndSelect("ordersDetails.product", "product")
+      .where("orders.line_liff_id = :line_liff_id", { line_liff_id: liffID })
+      .getOne();
+
+    if (!order) {
       return responseErrors(res, 400, "Order not found", "cannot find Order");
     }
 
     res.status(200).json({
       status: "success",
-      data: Order,
+      data: order,
     });
   } catch (err: any) {
     return responseErrors(res, 400, "Can't get single Order", err.message);

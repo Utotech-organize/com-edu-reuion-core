@@ -7,7 +7,7 @@ import {
 const router = express.Router();
 
 router.route("/").get(createOrderHandler);
+router.route("/liff").get(getSingleOrderHandler);
 router.post("/new", createOrderHandler);
-router.route("/:id").get(getSingleOrderHandler);
 
 export default router;

@@ -186,22 +186,29 @@ export const createBookingHandler = async (req: Request, res: Response) => {
 
 export const getAllBookingsHandler = async (req: Request, res: Response) => {
   try {
-    const bookings = await bookingRepository.find({
-      relations: ["customer", "desk"],
-      order: { id: "DESC" },
-      select: [
-        "id",
-        "created_at",
-        "updated_at",
-        "deleted_at",
-        "status",
-        "payment_status",
-        "inspector",
-        "total",
-        "customer",
-        "desk",
-      ],
-    });
+    const bookings = await bookingRepository
+      .createQueryBuilder("bookings")
+      .leftJoinAndSelect("bookings.customer", "customer")
+      .leftJoinAndSelect("bookings.desk", "desk")
+      .orderBy("bookings.id", "DESC")
+      .withDeleted()
+      .getMany();
+    // const bookings = await bookingRepository.find({
+    //   relations: ["customer", "desk"],
+    //   order: { id: "DESC" },
+    //   select: [
+    //     "id",
+    //     "created_at",
+    //     "updated_at",
+    //     "deleted_at",
+    //     "status",
+    //     "payment_status",
+    //     "inspector",
+    //     "total",
+    //     "customer",
+    //     "desk",
+    //   ],
+    // });
 
     res.status(200).json({
       status: "success",
@@ -391,6 +398,7 @@ export const updateBookingWithUserHandler = async (
 export const rejectBookingHandler = async (req: Request, res: Response) => {
   try {
     const booking_id = req.params.id;
+    const user_id = req.user.id;
 
     const booking = await bookingRepository
       .createQueryBuilder("bookings")
@@ -440,10 +448,20 @@ export const rejectBookingHandler = async (req: Request, res: Response) => {
 
     await deskRepository.save(booking.desk);
 
+    const user = await userRepository.findOneBy({
+      id: user_id as any,
+    });
+
+    if (!user) {
+      return responseErrors(res, 400, "User not found", "cannot find user");
+    }
+
     const d: Date = new Date();
     booking.deleted_at = d;
+    booking.status = "cancel";
+    booking.inspector = user.first_name;
 
-    await bookingRepository.save(booking); //FIXME
+    await bookingRepository.save(booking);
 
     res.status(200).json({
       status: "success",

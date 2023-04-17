@@ -1,6 +1,6 @@
 import Model from "./model.entity";
 import { Column, Entity, OneToMany } from "typeorm";
-import { Products } from "./product.entity";
+import { OrdersDetails } from "./order_details.entity";
 
 @Entity("orders")
 export class Orders extends Model {
@@ -8,7 +8,7 @@ export class Orders extends Model {
   remark!: string;
 
   @Column({ nullable: false })
-  total_price!: string;
+  total_price!: number;
 
   @Column({ nullable: false }) //customer firstname
   line_liff_id!: string;
@@ -16,6 +16,9 @@ export class Orders extends Model {
   @Column({ nullable: false }) //customer desk
   desk_label!: string;
 
-  @OneToMany(() => Products, (product) => product.order)
-  products!: Products[];
+  @Column({ nullable: true })
+  status!: string;
+
+  @OneToMany(() => OrdersDetails, (orderDetail) => orderDetail.order)
+  order_details!: OrdersDetails[];
 }
