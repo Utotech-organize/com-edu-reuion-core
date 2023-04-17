@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.1](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.3.0...1.3.1) (2023-04-17)
+
+
+### Bug Fixes
+
+* **desk:** soft delete ([60caa59](https://github.com/Tweed-tech/ComEduReuion-core/commit/60caa59e4168fa8871311c96ac9d87438a4ad60b))
+
 ## [1.3.0](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.2.4...1.3.0) (2023-04-17)
 
 
