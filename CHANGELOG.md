@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/Tweed-tech/ComEduReuion-core/compare/v1.0.2...v1.1.0) (2023-04-17)
+
+
+### Features
+
+* **booking:** merge customer feature ([aca1012](https://github.com/Tweed-tech/ComEduReuion-core/commit/aca1012e175fb660405f7158dd66983d4fcddc5a))
+* **product:** add product table prepared for order feature ([f3f66a2](https://github.com/Tweed-tech/ComEduReuion-core/commit/f3f66a25ae25e9874f55de0804c5ce7b9c9bef59))
+
+
+### Bug Fixes
+
+* **booking:** change get all booking with customer id to liff id ([74f825f](https://github.com/Tweed-tech/ComEduReuion-core/commit/74f825f99c9a8bf98c9149d571b8da5f8c1d2e7e))
+* **product:** change status to active ([8750610](https://github.com/Tweed-tech/ComEduReuion-core/commit/875061085f9bb4a78fffa80fce0a7354c510b27e))
+
 ### [1.0.2](https://github.com/Tweed-tech/ComEduReuion-core/compare/v0.0.12...v1.0.2) (2023-04-14)
 
 
