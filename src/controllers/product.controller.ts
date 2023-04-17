@@ -14,6 +14,7 @@ const selectProductColumn = [
   "products.quantity AS quantity",
   "products.price AS price",
   "products.ordering AS ordering",
+  "products.image AS image",
 ];
 
 export const createProductHandler = async (req: Request, res: Response) => {
@@ -26,6 +27,7 @@ export const createProductHandler = async (req: Request, res: Response) => {
       ordering: input.ordering,
       remark: input.remark,
       active: input.active,
+      image: input.image,
     } as Products;
 
     const newProductItem = await productRepository.save(new_product);
@@ -116,6 +118,7 @@ export const updateProductHandler = async (req: Request, res: Response) => {
     product.ordering = input.ordering;
     product.remark = input.remark;
     product.active = input.active;
+    product.image = input.image;
 
     const updatedProduct = await productRepository.save(product);
 
