@@ -30,7 +30,6 @@ const selectCustomerColumn = [
 export const createCustomerHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
-    // const chairs = input.chairs;
     let customer;
     let message;
 

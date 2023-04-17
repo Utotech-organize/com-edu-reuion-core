@@ -3,6 +3,7 @@ import { responseErrors } from "../utils/common";
 import { AppDataSource } from "../utils/data-source";
 import { Orders } from "../entities/order.entity";
 import { Customers } from "../entities/customer.entity";
+import { Products } from "../entities/product.entity";
 
 const orderRepository = AppDataSource.getRepository(Orders);
 const selectOrderColumn = [
@@ -41,6 +42,7 @@ const selectCustomerColumn = [
 export const createOrderHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
+    const products = input.products;
 
     const customer = await customerRepository
       .createQueryBuilder("customers")
@@ -59,16 +61,28 @@ export const createOrderHandler = async (req: Request, res: Response) => {
       );
     }
 
-    console.log(customer);
+    console.log(input);
 
-    // let new_order_item = {
-    //   remark: input.remark,
-    //   total_price: input.total_price,
-    //   first_name: input.first_name,
-    //   desk_label: input.desk_label,
-    // } as Orders;
+    // let product: Products[] = [];
 
-    // const newOrder = await orderRepository.save(new_order_item);
+    //   const product = await productRepository
+    //     .createQueryBuilder("products")
+    //     .select(selectProductColumn)
+    //     .where("products.id = :id", { id: req.params.id })
+    //     .getRawOne();
+
+    for (var v of products) {
+      // let chairTemp = {
+      //   chair_no: i.chair_no,
+      //   label: i.label,
+      //   status: i.status,
+      //   price: i.price,
+      //   desk: {
+      //     id: desks.id,
+      //   } as Desks,
+      // } as Chairs;
+      // product.push(chairTemp);
+    }
 
     try {
       res.status(200).json({

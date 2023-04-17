@@ -7,6 +7,7 @@ import {
   getAllBookingsHandler,
   getAllBookingsWithLiffIDHandler,
   getSingleBookingsHandler,
+  getTicketBookingAndMergeCustomerHandler,
   rejectBookingHandler,
   updateBookingWithUserHandler,
 } from "../controllers/booking.contorller";
@@ -17,6 +18,7 @@ const router = express.Router();
 
 router.route("/new").post(createBookingHandler);
 router.route("/liff").get(getAllBookingsWithLiffIDHandler);
+router.route("/ticket").get(getTicketBookingAndMergeCustomerHandler);
 router.route("/:id").get(getSingleBookingsHandler);
 
 // FIXME enable when frontend send bearer token
