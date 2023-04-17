@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import uuid, {
+  channelDashboard,
   responseErrors,
   statusAvailable,
   statusComplete,
@@ -38,6 +39,25 @@ const selectBookingsColumn = [
   "bookings.image_url AS image_url", //FIXME remove when production
   "bookings.customer AS customer",
   "bookings.desk AS desk",
+];
+
+const selectCustomerColumn = [
+  "customers.id AS id",
+  "customers.created_at AS created_at",
+  "customers.updated_at AS updated_at",
+  "customers.deleted_at AS deleted_at",
+  "customers.tel AS tel",
+  "customers.first_name AS first_name",
+  "customers.last_name AS last_name",
+  "customers.generation AS generation",
+  "customers.channel AS channel",
+  "customers.status AS status",
+  "customers.information AS information",
+  "customers.email AS email",
+  "customers.role AS role",
+  "customers.line_liff_id AS line_liff_id",
+  "customers.line_display_name AS line_display_name",
+  "customers.line_photo_url AS line_photo_url",
 ];
 
 const getCustomer = async (customer_id: any) => {
@@ -194,19 +214,19 @@ export const getAllBookingsHandler = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllBookingsWithCustomerIDHandler = async (
+export const getAllBookingsWithLiffIDHandler = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const customer_id = req.params.id;
+    const liffID = req.headers.token;
 
     const bookings = await bookingRepository
       .createQueryBuilder("bookings")
       .leftJoinAndSelect("bookings.customer", "customer")
       .leftJoinAndSelect("bookings.desk", "desk")
-      .where("bookings.customer.id = :customer_id", {
-        customer_id: customer_id,
+      .where("customer.line_liff_id = :line_liff_id", {
+        line_liff_id: liffID,
       })
       .orderBy("bookings.id", "DESC")
       .getMany();
@@ -217,7 +237,12 @@ export const getAllBookingsWithCustomerIDHandler = async (
       data: bookings,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, "Can't get all Bookings", err.message);
+    return responseErrors(
+      res,
+      400,
+      "Can't get all Bookings with liff id",
+      err.message
+    );
   }
 };
 
@@ -427,5 +452,100 @@ export const rejectBookingHandler = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     return responseErrors(res, 400, "Can't delete your Booking", err.message);
+  }
+};
+
+export const getTicketBookingAndMergeCustomerHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const headers = req.headers;
+    const line_liff_id = headers.line_liff_id;
+    const line_display_name = headers.line_display_name;
+    const line_photo_url = headers.line_photo_url;
+
+    const ticket = headers.ticket; // ticket = booking slug
+
+    const bookings = await bookingRepository
+      .createQueryBuilder("bookings")
+      .leftJoinAndSelect("bookings.customer", "customer")
+      .where("bookings.slug = :slug", {
+        slug: ticket,
+      })
+      .orderBy("bookings.id", "DESC")
+      .getOne();
+
+    if (!bookings) {
+      return responseErrors(
+        res,
+        400,
+        "Booking not found",
+        "cannot find booking with slug"
+      );
+    }
+
+    let customer = await customerRepository
+      .createQueryBuilder("customers")
+      .select(selectCustomerColumn)
+      .where("customers.line_liff_id = :line_liff_id", {
+        line_liff_id: line_liff_id,
+      })
+      .getRawOne();
+
+    if (bookings.customer.id !== customer.id) {
+      console.log("in if not equl");
+
+      await customerRepository.delete(customer.id); //delete old customer with register by line
+
+      const dashboardCt = await customerRepository //Have booking
+        .createQueryBuilder("customers")
+        .select(selectCustomerColumn)
+        .where("customers.id = :id", {
+          id: bookings.customer.id,
+        })
+        .andWhere("customers.channel = :channel", {
+          channel: channelDashboard,
+        })
+        .getRawOne();
+
+      if (!dashboardCt) {
+        return responseErrors(
+          res,
+          400,
+          "Customer not found",
+          "cannot find customer with id"
+        );
+      }
+
+      if (
+        dashboardCt.line_display_name === "" &&
+        dashboardCt.line_liff_id === "" &&
+        dashboardCt.line_photo_url === ""
+      ) {
+        dashboardCt.line_display_name = line_display_name;
+        dashboardCt.line_liff_id = line_liff_id;
+        dashboardCt.line_photo_url = line_photo_url;
+        dashboardCt.channel = "line";
+
+        customer = await customerRepository.save(dashboardCt);
+      }
+    }
+
+    if (!customer) {
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: customer,
+    });
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't update your Customer", err.message);
   }
 };

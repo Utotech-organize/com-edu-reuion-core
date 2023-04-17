@@ -5,8 +5,9 @@ import { getAllChairsWithDeskIDHandler } from "../controllers/chair.controller";
 import {
   createBookingHandler,
   getAllBookingsHandler,
-  getAllBookingsWithCustomerIDHandler,
+  getAllBookingsWithLiffIDHandler,
   getSingleBookingsHandler,
+  getTicketBookingAndMergeCustomerHandler,
   rejectBookingHandler,
   updateBookingWithUserHandler,
 } from "../controllers/booking.contorller";
@@ -16,8 +17,9 @@ import { uploadFileHandler } from "../controllers/upload.controller";
 const router = express.Router();
 
 router.route("/new").post(createBookingHandler);
+router.route("/liff").get(getAllBookingsWithLiffIDHandler);
+router.route("/ticket").get(getTicketBookingAndMergeCustomerHandler);
 router.route("/:id").get(getSingleBookingsHandler);
-router.route("/customer/:id").get(getAllBookingsWithCustomerIDHandler);
 
 // FIXME enable when frontend send bearer token
 router.use(verifyJwt);
