@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { responseErrors } from "../utils/common";
 import { AppDataSource } from "../utils/data-source";
 import { Orders } from "../entities/order.entity";
+import { Customers } from "../entities/customer.entity";
 
 const orderRepository = AppDataSource.getRepository(Orders);
 const selectOrderColumn = [
@@ -9,7 +10,6 @@ const selectOrderColumn = [
   "orders.created_at AS created_at",
   "orders.updated_at AS updated_at",
   "orders.deleted_at AS deleted_at",
-  "orders.label AS label",
   "orders.remark AS remark",
   "orders.total_price AS total_price",
   "orders.first_name AS first_name",
@@ -18,26 +18,64 @@ const selectOrderColumn = [
   "orders.products AS products",
 ];
 
+const customerRepository = AppDataSource.getRepository(Customers);
+const selectCustomerColumn = [
+  "customers.id AS id",
+  "customers.created_at AS created_at",
+  "customers.updated_at AS updated_at",
+  "customers.deleted_at AS deleted_at",
+  "customers.tel AS tel",
+  "customers.first_name AS first_name",
+  "customers.last_name AS last_name",
+  "customers.generation AS generation",
+  "customers.channel AS channel",
+  "customers.status AS status",
+  "customers.information AS information",
+  "customers.email AS email",
+  "customers.role AS role",
+  "customers.line_liff_id AS line_liff_id",
+  "customers.line_display_name AS line_display_name",
+  "customers.line_photo_url AS line_photo_url",
+];
+
 export const createOrderHandler = async (req: Request, res: Response) => {
   try {
     const input = req.body;
 
-    let new_order_item = {
-      label: input.label,
-      remark: input.remark,
-      total_price: input.total_price,
-      first_name: input.first_name,
-      desk_label: input.desk_label,
-    } as Orders;
+    const customer = await customerRepository
+      .createQueryBuilder("customers")
+      .select(selectCustomerColumn)
+      .where("customers.line_liff_id = :line_liff_id", {
+        line_liff_id: input.line_liff_id,
+      })
+      .getRawOne();
 
-    const newOrder = await orderRepository.save(new_order_item);
+    if (!customer) {
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
+    }
+
+    console.log(customer);
+
+    // let new_order_item = {
+    //   remark: input.remark,
+    //   total_price: input.total_price,
+    //   first_name: input.first_name,
+    //   desk_label: input.desk_label,
+    // } as Orders;
+
+    // const newOrder = await orderRepository.save(new_order_item);
 
     try {
       res.status(200).json({
         status: "success",
-        id: newOrder.id,
-        message: "Order has been created",
-        data: newOrder,
+        // id: newOrder.id,
+        // message: "Order has been created",
+        // data: newOrder,
       });
     } catch (err: any) {
       return responseErrors(

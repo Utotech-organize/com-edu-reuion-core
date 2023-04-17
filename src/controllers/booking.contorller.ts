@@ -194,19 +194,19 @@ export const getAllBookingsHandler = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllBookingsWithCustomerIDHandler = async (
+export const getAllBookingsWithLiffIDHandler = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const customer_id = req.params.id;
+    const liffID = req.headers.token;
 
     const bookings = await bookingRepository
       .createQueryBuilder("bookings")
       .leftJoinAndSelect("bookings.customer", "customer")
       .leftJoinAndSelect("bookings.desk", "desk")
-      .where("bookings.customer.id = :customer_id", {
-        customer_id: customer_id,
+      .where("customer.line_liff_id = :line_liff_id", {
+        line_liff_id: liffID,
       })
       .orderBy("bookings.id", "DESC")
       .getMany();
@@ -217,7 +217,12 @@ export const getAllBookingsWithCustomerIDHandler = async (
       data: bookings,
     });
   } catch (err: any) {
-    return responseErrors(res, 400, "Can't get all Bookings", err.message);
+    return responseErrors(
+      res,
+      400,
+      "Can't get all Bookings with liff id",
+      err.message
+    );
   }
 };
 
