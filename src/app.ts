@@ -21,6 +21,7 @@ import { responseErrors, uploadFilter } from "./utils/common";
 import { initDeskAndChairs } from "./utils/mock-default-data";
 import { Desks } from "./entities/desk.entity";
 import { createDefaultUser } from "./controllers/user.controller";
+import { createDefaultSettings } from "./controllers/setting.controller";
 
 const deskRepository = AppDataSource.getRepository(Desks);
 
@@ -52,6 +53,7 @@ AppDataSource.initialize()
 
     if (user.length === 0) {
       createDefaultUser(); //FIXME to dynamic function
+      createDefaultSettings();
     }
 
     // ROUTES;

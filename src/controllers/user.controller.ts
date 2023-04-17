@@ -195,7 +195,6 @@ export const createDefaultUser = async () => {
 
     await userRepository.save(user2);
     console.log("Inserting a defalut user into the database...");
-    console.log("Init Super admin and default user");
 
     return;
   } catch (err: any) {
