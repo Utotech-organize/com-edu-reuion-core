@@ -55,7 +55,7 @@ export const getAllProductsHandler = async (req: Request, res: Response) => {
     const products = await productRepository
       .createQueryBuilder("products")
       .select(selectProductColumn)
-      .where("products.deleted_at is null")
+      // .where("products.deleted_at is null")
       .orderBy("products.ordering", "ASC")
       .getRawMany();
 
@@ -145,7 +145,7 @@ export const deleteProductHandler = async (req: Request, res: Response) => {
       );
     }
 
-    await productRepository.softDelete(product.id); //FIXME
+    await productRepository.delete(product.id); //FIXME
 
     res.status(204).json({
       status: "success",

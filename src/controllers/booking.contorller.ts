@@ -75,7 +75,6 @@ const getDesk = async (desk_id: any) => {
   const desk = await deskRepository.findOneBy({
     id: desk_id,
     active: true,
-    deleted_at: undefined,
   });
   if (!desk) {
     throw new Error("cannot find desk");
@@ -494,42 +493,37 @@ export const getTicketBookingAndMergeCustomerHandler = async (
       .getRawOne();
 
     if (bookings.customer.id !== customer.id) {
-      console.log("in if not equl");
-
       await customerRepository.delete(customer.id); //delete old customer with register by line
+    }
 
-      const dashboardCt = await customerRepository //Have booking
-        .createQueryBuilder("customers")
-        .select(selectCustomerColumn)
-        .where("customers.id = :id", {
-          id: bookings.customer.id,
-        })
-        .andWhere("customers.channel = :channel", {
-          channel: channelDashboard,
-        })
-        .getRawOne();
+    const dashboardCt = await customerRepository //Have booking
+      .createQueryBuilder("customers")
+      .select(selectCustomerColumn)
+      .where("customers.id = :id", {
+        id: bookings.customer.id,
+      })
+      .getRawOne();
 
-      if (!dashboardCt) {
-        return responseErrors(
-          res,
-          400,
-          "Customer not found",
-          "cannot find customer with id"
-        );
-      }
+    if (!dashboardCt) {
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer with id"
+      );
+    }
 
-      if (
-        dashboardCt.line_display_name === "" &&
-        dashboardCt.line_liff_id === "" &&
-        dashboardCt.line_photo_url === ""
-      ) {
-        dashboardCt.line_display_name = line_display_name;
-        dashboardCt.line_liff_id = line_liff_id;
-        dashboardCt.line_photo_url = line_photo_url;
-        dashboardCt.channel = "line";
+    if (
+      dashboardCt.line_display_name === "" &&
+      dashboardCt.line_liff_id === "" &&
+      dashboardCt.line_photo_url === ""
+    ) {
+      dashboardCt.line_display_name = line_display_name;
+      dashboardCt.line_liff_id = line_liff_id;
+      dashboardCt.line_photo_url = line_photo_url;
+      dashboardCt.channel = "line";
 
-        customer = await customerRepository.save(dashboardCt);
-      }
+      customer = await customerRepository.save(dashboardCt);
     }
 
     if (!customer) {

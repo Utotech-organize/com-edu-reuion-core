@@ -109,7 +109,7 @@ export const getAllCustomersHandler = async (req: Request, res: Response) => {
     const customers = await customerRepository
       .createQueryBuilder("customers")
       .select(selectCustomerColumn)
-      .where("customers.deleted_at is null")
+      // .where("customers.deleted_at is null")
       .orderBy("customers.id", "DESC")
       .getRawMany();
 
@@ -242,7 +242,7 @@ export const deleteCustomerHandler = async (req: Request, res: Response) => {
       );
     }
 
-    await deskRepository.softDelete(customer.id); //FIXME
+    await deskRepository.delete(customer.id); //FIXME
 
     res.status(204).json({
       status: "success",

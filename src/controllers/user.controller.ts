@@ -71,7 +71,7 @@ export const getAllUsersHandler = async (req: Request, res: Response) => {
     const users = await userRepository
       .createQueryBuilder("users")
       .select(selectUserColumn)
-      .where("users.deleted_at is null")
+      // .where("users.deleted_at is null")
       .andWhere("users.role = :role", { role: "admin" })
       .orderBy("users.id", "DESC")
       .getRawMany();
@@ -154,7 +154,7 @@ export const deleteUserHandler = async (req: Request, res: Response) => {
       return responseErrors(res, 400, "User not found", "cannot find user");
     }
 
-    await userRepository.softDelete(user.id); //FIXME
+    await userRepository.delete(user.id); //FIXME
 
     res.status(204).json({
       status: "success",

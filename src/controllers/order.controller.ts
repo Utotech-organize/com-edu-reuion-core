@@ -109,7 +109,7 @@ export const getAllOrdersHandler = async (req: Request, res: Response) => {
     const orders = await orderRepository
       .createQueryBuilder("orders")
       .select(selectOrderColumn)
-      .where("orders.deleted_at is null")
+      // .where("orders.deleted_at is null")
       .orderBy("orders.ordering", "ASC")
       .getRawMany();
 
