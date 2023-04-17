@@ -11,7 +11,6 @@ const selectProductColumn = [
   "products.updated_at AS updated_at",
   "products.deleted_at AS deleted_at",
   "products.label AS label",
-  "products.quantity AS quantity",
   "products.price AS price",
   "products.ordering AS ordering",
   "products.image AS image",
