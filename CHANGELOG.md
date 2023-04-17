@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.1.0...1.2.0) (2023-04-17)
+
+
+### Features
+
+* **order:** added create and get single order ([3f1188c](https://github.com/Tweed-tech/ComEduReuion-core/commit/3f1188c89609167643f67b6752172c7048e8bc2b))
+* **setting:** get and edit setting ([9198761](https://github.com/Tweed-tech/ComEduReuion-core/commit/9198761b1f82e8d12329892bd3f6b99a01282faf))
+
+
+### Bug Fixes
+
+* **delete:** change soft delete to delete to reset with soft delete ([898f57e](https://github.com/Tweed-tech/ComEduReuion-core/commit/898f57e758f13c64a520465bea7efe4217730b60))
+
 ## [1.1.0](https://github.com/Tweed-tech/ComEduReuion-core/compare/v1.0.2...v1.1.0) (2023-04-17)
 
 
