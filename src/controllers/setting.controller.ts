@@ -12,7 +12,7 @@ const selectsettingColumn = [
   "settings.bank AS bank",
   "settings.bank_account_name AS bank_account_name",
   "settings.bank_account_no AS bank_account_no",
-  "settings.bank_qr_coe AS bank_qr_coe",
+  "settings.bank_qr_code AS bank_qr_code",
 ];
 
 export const getSettingHandler = async (req: Request, res: Response) => {

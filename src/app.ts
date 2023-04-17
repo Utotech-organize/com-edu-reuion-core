@@ -14,10 +14,11 @@ import customerRouter from "./routes/customer.routes";
 import uploadRouter from "./routes/upload.routes";
 import productRouter from "./routes/product.routes";
 import orderRouter from "./routes/order.routes";
+import settingRouter from "./routes/setting.routes";
 
 import validateEnv from "./utils/validateEnv";
 import { Users } from "./entities/user.entity";
-import { responseErrors, uploadFilter } from "./utils/common";
+import { responseErrors } from "./utils/common";
 import { initDeskAndChairs } from "./utils/mock-default-data";
 import { Desks } from "./entities/desk.entity";
 import { createDefaultUser } from "./controllers/user.controller";
@@ -66,6 +67,7 @@ AppDataSource.initialize()
     app.use("/api/upload", uploadRouter);
     app.use("/api/products", productRouter);
     app.use("/api/orders", orderRouter);
+    app.use("/api/settings", settingRouter);
 
     // set up mock updata
     const desks = await deskRepository.createQueryBuilder("desks").getMany();
