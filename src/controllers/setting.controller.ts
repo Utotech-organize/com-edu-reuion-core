@@ -47,7 +47,7 @@ export const updateSettingHandler = async (req: Request, res: Response) => {
 
     const setting = await settingRepository.findOneBy({ id: 1 });
 
-    if (!setting || setting.id == 1) {
+    if (!setting) {
       return responseErrors(
         res,
         400,
