@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import { Desks } from "../entities/desk.entity";
 
 import { AppDataSource } from "../utils/data-source";
-import { responseErrors, statusUnAvailable } from "../utils/common";
+import {
+  responseErrors,
+  statusAvailable,
+  statusUnAvailable,
+} from "../utils/common";
 import { Chairs } from "../entities/chair.entity";
 
 const deskRepository = AppDataSource.getRepository(Desks);
@@ -148,10 +152,10 @@ export const updateDeskHandler = async (req: Request, res: Response) => {
     desk.price = input.price;
     desk.chair_price = input.chair_price;
 
-    if (desk.active === false) {
-      desk.status = statusUnAvailable;
+    if (desk.active) {
+      desk.status = statusAvailable;
     } else {
-      desk.status = input.status;
+      desk.status = statusUnAvailable;
     }
 
     const updatedDesk = await deskRepository.save(desk);
