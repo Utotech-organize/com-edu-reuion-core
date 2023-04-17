@@ -13,6 +13,7 @@ const selectProductColumn = [
   "products.label AS label",
   "products.price AS price",
   "products.ordering AS ordering",
+  "products.remark AS remark",
   "products.image AS image",
 ];
 
