@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.4](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.2.3...1.2.4) (2023-04-17)
+
+
+### Bug Fixes
+
+* **product:** fixed return quantity ([fcc4d86](https://github.com/Tweed-tech/ComEduReuion-core/commit/fcc4d86868f9096eb6bf0f6ad60e1f77303eeaf5))
+* **setting:** fixed update setting ([144f76a](https://github.com/Tweed-tech/ComEduReuion-core/commit/144f76a1edc01e4d7f74db472f71820e25af066e))
+
 ### [1.2.3](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.2.2...1.2.3) (2023-04-17)
 
 
