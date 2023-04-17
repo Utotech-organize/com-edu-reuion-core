@@ -110,6 +110,7 @@ export const getAllCustomersHandler = async (req: Request, res: Response) => {
       .createQueryBuilder("customers")
       .select(selectCustomerColumn)
       // .where("customers.deleted_at is null")
+      .withDeleted()
       .orderBy("customers.id", "DESC")
       .getRawMany();
 
@@ -136,6 +137,7 @@ export const getCustomerByLiffIDHandler = async (
       .where("customers.line_liff_id = :line_liff_id", {
         line_liff_id: liffID,
       })
+      .withDeleted()
       .getRawOne();
 
     if (!customer) {
@@ -171,6 +173,7 @@ export const getCustomerHandler = async (req: Request, res: Response) => {
       .where("customers.id = :id", {
         id: id,
       })
+      .withDeleted()
       .getRawOne();
 
     if (!customer) {

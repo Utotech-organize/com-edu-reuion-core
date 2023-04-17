@@ -234,6 +234,7 @@ export const getAllBookingsWithLiffIDHandler = async (
       .where("customer.line_liff_id = :line_liff_id", {
         line_liff_id: liffID,
       })
+      .withDeleted()
       .orderBy("bookings.id", "DESC")
       .getMany();
 
@@ -262,6 +263,7 @@ export const getSingleBookingsHandler = async (req: Request, res: Response) => {
       .where("bookings.id = :id", {
         id: booking_id,
       })
+      .withDeleted()
       .getRawOne();
 
     if (!booking) {

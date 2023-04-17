@@ -91,6 +91,7 @@ export const getAllDesksHandler = async (req: Request, res: Response) => {
       .createQueryBuilder("desks")
       .select(selectDeskColumn)
       .orderBy("desks.id", "ASC")
+      .withDeleted()
       .getRawMany();
 
     res.status(200).json({
@@ -118,6 +119,7 @@ export const getDeskHandler = async (req: Request, res: Response) => {
       .where("desk_id = :desk_id", {
         desk_id: Desk?.id,
       })
+      .withDeleted()
       .getMany();
 
     Desk!.chairs = chairs;

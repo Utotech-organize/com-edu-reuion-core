@@ -74,6 +74,7 @@ export const getAllUsersHandler = async (req: Request, res: Response) => {
       // .where("users.deleted_at is null")
       .andWhere("users.role = :role", { role: "admin" })
       .orderBy("users.id", "DESC")
+      .withDeleted()
       .getRawMany();
 
     res.status(200).json({
@@ -92,6 +93,7 @@ export const getUserHandler = async (req: Request, res: Response) => {
       .createQueryBuilder("users")
       .select(selectUserColumn)
       .where("users.id = :id", { id: req.params.id })
+      .withDeleted()
       .getRawOne();
 
     if (!user || user.id == 1) {
