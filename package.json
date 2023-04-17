@@ -1,6 +1,6 @@
 {
   "name": "com-edu-reunion-core",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "computer education reunion project",
   "type": "commonjs",
   "dependencies": {
