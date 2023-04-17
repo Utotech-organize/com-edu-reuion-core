@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.3](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.2.2...1.2.3) (2023-04-17)
+
+
+### Bug Fixes
+
+* **product:** added image for product and new branch prepared for devio ([0820b86](https://github.com/Tweed-tech/ComEduReuion-core/commit/0820b86dc55d46c0f8fe727a2a64eaf83fbcb1f6))
+* **setting:** add setting router and fixed text ([59560ba](https://github.com/Tweed-tech/ComEduReuion-core/commit/59560ba28aece83f3b0a5ebfdb79bc5f935a2b4c))
+
 ### [1.2.2](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.2.1...1.2.2) (2023-04-17)
 
 
