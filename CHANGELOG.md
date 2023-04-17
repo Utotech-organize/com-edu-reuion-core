@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.2](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.2.1...1.2.2) (2023-04-17)
+
+
+### Bug Fixes
+
+* **customer:** fixed customer ([500f58a](https://github.com/Tweed-tech/ComEduReuion-core/commit/500f58a859fc809dcd98f897167e72aa76705f21))
+* **merge:** added merge customer with previous data ([1c338f9](https://github.com/Tweed-tech/ComEduReuion-core/commit/1c338f944a483cee1892867b2c1295a621f9ba79))
+
 ### [1.2.1](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.2.0...1.2.1) (2023-04-17)
 
 
