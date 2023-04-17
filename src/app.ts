@@ -18,6 +18,7 @@ import { Users } from "./entities/user.entity";
 import { responseErrors, uploadFilter } from "./utils/common";
 import { initDeskAndChairs } from "./utils/mock-default-data";
 import { Desks } from "./entities/desk.entity";
+import { createDefaultUser } from "./controllers/user.controller";
 
 const deskRepository = AppDataSource.getRepository(Desks);
 
@@ -48,21 +49,7 @@ AppDataSource.initialize()
     const user = await userRepository.find();
 
     if (user.length === 0) {
-      console.log("Inserting a new super admin into the database...");
-      const user = new Users();
-      user.email = (process.env.SUPER_ADMIN_EMAIL as string) ?? "";
-      user.password = (process.env.SUPER_ADMIN_PASSWORD as string) ?? "";
-      user.first_name = "super";
-      user.last_name = "admin";
-      user.remark = "this is super admin for development";
-      user.tel = "-";
-      user.role = "super_admin";
-      user.image_url =
-        "https://drive.google.com/uc?export=view&id=1X397QtEgZ76TDYBZKaIBce0xKRnnkHD9";
-
-      await userRepository.save(user);
-
-      console.log("Init Super admin");
+      createDefaultUser(); //FIXME to dynamic function
     }
 
     // ROUTES;
@@ -73,6 +60,8 @@ AppDataSource.initialize()
     app.use("/api/users", userRouter);
     app.use("/api/auth", authRouter);
     app.use("/api/upload", uploadRouter);
+    app.use("/api/products", uploadRouter);
+    app.use("/api/orders", uploadRouter);
 
     // set up mock updata
     const desks = await deskRepository.createQueryBuilder("desks").getMany();

@@ -25,20 +25,18 @@ export const registerUserHandler = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const input = req.body;
 
-    const newUser = await userRepository.save(
-      userRepository.create({
-        email: email.toLowerCase(),
-        password,
-        first_name: input.first_name,
-        last_name: input.last_name,
-        remark: input.remark,
-        tel: input.tel,
-        role: input.role,
-        image_url: input.image_url,
-      })
-    );
+    let new_user = {
+      email: email.toLowerCase(),
+      password,
+      first_name: input.first_name,
+      last_name: input.last_name,
+      remark: input.remark,
+      tel: input.tel,
+      role: input.role,
+      image_url: input.image_url,
+    } as Users;
 
-    await newUser.save();
+    const newUser = await userRepository.save(new_user);
 
     try {
       res.status(200).json({
@@ -167,19 +165,40 @@ export const deleteUserHandler = async (req: Request, res: Response) => {
   }
 };
 
-// export const uploadImageAndConvertToBase64 = async (
-//   req: Request,
-//   res: Response
-// ) => {
-//   try {
-//     const file = req.file!;
-//     const imageID = await uploadFileToBase64(file);
+export const createDefaultUser = async () => {
+  try {
+    const user1 = new Users();
 
-//     res.status(200).json({
-//       status: "success",
-//       data: imageID,
-//     });
-//   } catch (err: any) {
-//     return responseErrors(res, 400, "Can't upload image", err.message);
-//   }
-// };
+    //FIXME convert to dynamic add
+    user1.email = (process.env.SUPER_ADMIN_EMAIL as string) ?? "";
+    user1.password = (process.env.SUPER_ADMIN_PASSWORD as string) ?? "";
+    user1.first_name = "super";
+    user1.last_name = "admin";
+    user1.remark = "this is super admin for development";
+    user1.tel = "-";
+    user1.role = "super_admin";
+    user1.image_url =
+      "https://drive.google.com/uc?export=view&id=1X397QtEgZ76TDYBZKaIBce0xKRnnkHD9";
+    await userRepository.save(user1);
+
+    const user2 = new Users();
+
+    user2.email = "tester@comedu.co";
+    user2.password = "comedu";
+    user2.first_name = "giraffe";
+    user2.last_name = "kung";
+    user2.remark = "this is default user";
+    user2.tel = "-";
+    user2.role = "admin";
+    user2.image_url =
+      "https://drive.google.com/uc?export=view&id=1Qpt_l5xxWQBWVyYnjhnK53agH5LlZRgz";
+
+    await userRepository.save(user2);
+    console.log("Inserting a defalut user into the database...");
+    console.log("Init Super admin and default user");
+
+    return;
+  } catch (err: any) {
+    throw new Error(err.message);
+  }
+};

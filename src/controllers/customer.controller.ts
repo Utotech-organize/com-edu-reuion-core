@@ -1,16 +1,10 @@
 import { Request, Response } from "express";
 import { Desks } from "../entities/desk.entity";
-import { Chairs } from "../entities/chair.entity";
 
 import { AppDataSource } from "../utils/data-source";
-import {
-  responseErrors,
-  statusAvailable,
-  statusPending,
-} from "../utils/common";
+import { responseErrors } from "../utils/common";
 import { Customers } from "../entities/customer.entity";
 
-const chairRepository = AppDataSource.getRepository(Chairs);
 const deskRepository = AppDataSource.getRepository(Desks);
 const customerRepository = AppDataSource.getRepository(Customers);
 

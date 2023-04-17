@@ -102,16 +102,3 @@ export const loginUserHandler = async (req: Request, res: Response) => {
     });
   } catch (err: any) {}
 };
-
-//FIXME logout
-export const logoutHandler = async (req: Request, res: Response) => {
-  try {
-    const user = res.locals.user;
-
-    res.status(200).json({
-      status: "success",
-    });
-  } catch (err: any) {
-    return responseErrors(res, 400, "Can't logout", err.message);
-  }
-};
