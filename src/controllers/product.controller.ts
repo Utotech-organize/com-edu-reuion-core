@@ -6,13 +6,14 @@ import { Products } from "../entities/product.entity";
 const productRepository = AppDataSource.getRepository(Products);
 const selectProductColumn = [
   "products.id AS id",
+  "products.active AS active",
   "products.created_at AS created_at",
   "products.updated_at AS updated_at",
   "products.deleted_at AS deleted_at",
   "products.label AS label",
   "products.quantity AS quantity",
   "products.price AS price",
-  "products.Producting AS Producting",
+  "products.ordering AS ordering",
 ];
 
 export const createProductHandler = async (req: Request, res: Response) => {
@@ -24,7 +25,7 @@ export const createProductHandler = async (req: Request, res: Response) => {
       price: input.price,
       ordering: input.ordering,
       remark: input.remark,
-      status: input.status,
+      active: input.active,
     } as Products;
 
     const newProductItem = await productRepository.save(new_product);
@@ -68,7 +69,7 @@ export const getAllProductsHandler = async (req: Request, res: Response) => {
   }
 };
 
-export const getProductHandler = async (req: Request, res: Response) => {
+export const getSingleProductHandler = async (req: Request, res: Response) => {
   try {
     const product = await productRepository
       .createQueryBuilder("products")
@@ -116,7 +117,7 @@ export const updateProductHandler = async (req: Request, res: Response) => {
     product.price = input.price;
     product.ordering = input.ordering;
     product.remark = input.remark;
-    product.status = input.status;
+    product.active = input.active;
 
     const updatedProduct = await productRepository.save(product);
 

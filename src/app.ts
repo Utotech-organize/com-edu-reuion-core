@@ -12,6 +12,8 @@ import chairRouter from "./routes/chair.routes";
 import userRouter from "./routes/user.routes";
 import customerRouter from "./routes/customer.routes";
 import uploadRouter from "./routes/upload.routes";
+import productRouter from "./routes/product.routes";
+import orderRouter from "./routes/order.routes";
 
 import validateEnv from "./utils/validateEnv";
 import { Users } from "./entities/user.entity";
@@ -60,8 +62,8 @@ AppDataSource.initialize()
     app.use("/api/users", userRouter);
     app.use("/api/auth", authRouter);
     app.use("/api/upload", uploadRouter);
-    app.use("/api/products", uploadRouter);
-    app.use("/api/orders", uploadRouter);
+    app.use("/api/products", productRouter);
+    app.use("/api/orders", orderRouter);
 
     // set up mock updata
     const desks = await deskRepository.createQueryBuilder("desks").getMany();

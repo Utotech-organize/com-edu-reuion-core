@@ -7,7 +7,7 @@ export class Products extends Model {
   @Column({ nullable: false })
   label!: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   quantity!: number; // add when order by liff
 
   @Column({ nullable: false })
@@ -20,7 +20,7 @@ export class Products extends Model {
   remark!: string;
 
   @Column({ nullable: false })
-  status!: string;
+  active!: boolean;
 
   @ManyToOne(() => Orders, (order) => order.products)
   order!: Orders;

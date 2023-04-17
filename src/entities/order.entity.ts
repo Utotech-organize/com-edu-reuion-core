@@ -23,7 +23,7 @@ export class Orders extends Model {
     default: true,
     nullable: true,
   })
-  status!: boolean;
+  active!: boolean;
 
   @OneToMany(() => Products, (product) => product.order)
   products!: Products[];
