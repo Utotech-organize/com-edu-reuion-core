@@ -189,7 +189,7 @@ export const deleteDeskHandler = async (req: Request, res: Response) => {
       await chairRepository.save(chair);
     });
 
-    res.status(204).json({
+    res.status(200).json({
       status: "success",
       data: null,
     });

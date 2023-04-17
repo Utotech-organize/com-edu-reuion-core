@@ -244,7 +244,7 @@ export const deleteCustomerHandler = async (req: Request, res: Response) => {
 
     await deskRepository.softDelete(customer.id); //FIXME
 
-    res.status(204).json({
+    res.status(200).json({
       status: "success",
       data: null,
     });

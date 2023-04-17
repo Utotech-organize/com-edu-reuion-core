@@ -188,7 +188,7 @@ export const deleteChairHandler = async (req: Request, res: Response) => {
 
     await chairRepository.delete(chair.id); //FIXME
 
-    res.status(204).json({
+    res.status(200).json({
       status: "success",
       data: null,
     });

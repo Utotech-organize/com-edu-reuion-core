@@ -145,7 +145,7 @@ export const deleteProductHandler = async (req: Request, res: Response) => {
 
     await productRepository.softDelete(product.id); //FIXME
 
-    res.status(204).json({
+    res.status(200).json({
       status: "success",
       data: null,
     });
