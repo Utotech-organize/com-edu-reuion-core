@@ -55,7 +55,6 @@ export const getAllProductsHandler = async (req: Request, res: Response) => {
     const products = await productRepository
       .createQueryBuilder("products")
       .select(selectProductColumn)
-      .where("products.deleted_at is null")
       .orderBy("products.ordering", "ASC")
       .getRawMany();
 
@@ -113,7 +112,6 @@ export const updateProductHandler = async (req: Request, res: Response) => {
     }
 
     product.label = input.label;
-    product.quantity = input.quantity;
     product.price = input.price;
     product.ordering = input.ordering;
     product.remark = input.remark;

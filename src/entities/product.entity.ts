@@ -1,14 +1,11 @@
-import { Column, Entity, ManyToOne } from "typeorm";
-import { Orders } from "./order.entity";
+import { Column, Entity, OneToMany } from "typeorm";
 import Model from "./model.entity";
+import { OrdersDetails } from "./order_details.entity";
 
 @Entity("products")
 export class Products extends Model {
   @Column({ nullable: false })
   label!: string;
-
-  @Column({ nullable: true })
-  quantity!: number; // add when order by liff
 
   @Column({ nullable: false })
   price!: number;
@@ -22,6 +19,9 @@ export class Products extends Model {
   @Column({ nullable: false })
   active!: boolean;
 
-  @ManyToOne(() => Orders, (order) => order.products)
-  order!: Orders;
+  @Column({ nullable: true })
+  image!: string;
+
+  @OneToMany(() => OrdersDetails, (orderDetail) => orderDetail.product)
+  order_details!: OrdersDetails[];
 }

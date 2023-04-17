@@ -69,7 +69,7 @@ export const getAllChairsHandler = async (req: Request, res: Response) => {
     const chairs = await chairRepository
       .createQueryBuilder("chairs")
       .select(selectChairColumn)
-      .where("chairs.deleted_at is null")
+      // .where("chairs.deleted_at is null")
       .getRawMany();
 
     res.status(200).json({
@@ -93,7 +93,7 @@ export const getAllChairsWithDeskIDHandler = async (
       .createQueryBuilder("chairs")
       .select(selectChairColumn)
       .where("chairs.desk_id = :id", { id: deskID })
-      .andWhere("chairs.deleted_at is null")
+      // .andWhere("chairs.deleted_at is null")
       .getRawMany();
 
     res.status(200).json({
@@ -117,7 +117,7 @@ export const getChairHandler = async (req: Request, res: Response) => {
       .createQueryBuilder("chairs")
       .select(selectChairColumn)
       .where("chairs.id = :id", { id: req.params.id })
-      .andWhere("chairs.deleted_at is null")
+      // .andWhere("chairs.deleted_at is null")
       .getRawOne();
 
     if (!chair) {

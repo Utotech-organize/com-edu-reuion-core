@@ -109,7 +109,7 @@ export const getAllCustomersHandler = async (req: Request, res: Response) => {
     const customers = await customerRepository
       .createQueryBuilder("customers")
       .select(selectCustomerColumn)
-      .where("customers.deleted_at is null")
+      // .where("customers.deleted_at is null")
       .orderBy("customers.id", "DESC")
       .getRawMany();
 

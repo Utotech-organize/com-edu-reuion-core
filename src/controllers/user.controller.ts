@@ -71,7 +71,7 @@ export const getAllUsersHandler = async (req: Request, res: Response) => {
     const users = await userRepository
       .createQueryBuilder("users")
       .select(selectUserColumn)
-      .where("users.deleted_at is null")
+      // .where("users.deleted_at is null")
       .andWhere("users.role = :role", { role: "admin" })
       .orderBy("users.id", "DESC")
       .getRawMany();
@@ -195,7 +195,6 @@ export const createDefaultUser = async () => {
 
     await userRepository.save(user2);
     console.log("Inserting a defalut user into the database...");
-    console.log("Init Super admin and default user");
 
     return;
   } catch (err: any) {
