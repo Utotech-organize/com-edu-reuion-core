@@ -536,6 +536,12 @@ export const getTicketBookingAndMergeCustomerHandler = async (
       dashboardCt.line_liff_id === "" &&
       dashboardCt.line_photo_url === ""
     ) {
+      dashboardCt.first_name = customer.first_name;
+      dashboardCt.last_name = customer.last_name;
+      dashboardCt.generation = customer.generation;
+      dashboardCt.information = customer.information;
+      dashboardCt.email = customer.email;
+      dashboardCt.status = "merge";
       dashboardCt.line_display_name = line_display_name;
       dashboardCt.line_liff_id = line_liff_id;
       dashboardCt.line_photo_url = line_photo_url;

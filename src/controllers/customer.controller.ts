@@ -242,7 +242,7 @@ export const deleteCustomerHandler = async (req: Request, res: Response) => {
       );
     }
 
-    await deskRepository.softDelete(customer.id); //FIXME
+    await customerRepository.softDelete(customer.id); //FIXME
 
     res.status(200).json({
       status: "success",
