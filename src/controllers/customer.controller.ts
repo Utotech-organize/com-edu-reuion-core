@@ -4,6 +4,7 @@ import { Desks } from "../entities/desk.entity";
 import { AppDataSource } from "../utils/data-source";
 import { responseErrors } from "../utils/common";
 import { Customers } from "../entities/customer.entity";
+import axios from "axios";
 
 const deskRepository = AppDataSource.getRepository(Desks);
 const customerRepository = AppDataSource.getRepository(Customers);
@@ -74,6 +75,30 @@ export const createCustomerHandler = async (req: Request, res: Response) => {
       message = "customer has been created";
 
       customer = await customerRepository.save(new_customer);
+
+      //FIXME
+      const richMenuId = "richmenu-d6e563d63772fb6d042e655561bc4182";
+      const headers = {
+        Authorization:
+          "Bearer 2srfrgJMQ8XXBUyPC9qTGOjQKWZWkSCaQpfV1HBdecuW3j5BQY0XvVhgGEKpzbysZ0kh64p5HAB9s4q2abWHUex5/NsBoIGmqPO64QeYmSc16m6TfIBEeSKLaMiTn8tSWcd33lmz/1YKm1JHyP48ugdB04t89/1O/w1cDnyilFU=",
+      };
+
+      axios
+        .post(
+          `https://api.line.me/v2/bot/user/${input.line_liff_id}/richmenu/${richMenuId}`,
+          null,
+          {
+            headers,
+          }
+        )
+        .then((response) => {
+          // Handle successful response
+          console.log(response.data);
+        })
+        .catch((error) => {
+          // Handle error
+          console.error(error);
+        });
     }
 
     try {

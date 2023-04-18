@@ -16,6 +16,7 @@ import { Chairs } from "../entities/chair.entity";
 import { Users } from "../entities/user.entity";
 import { qrcodeGenerator } from "../utils/service";
 import _ from "lodash";
+import axios from "axios";
 
 const bookingRepository = AppDataSource.getRepository(Bookings);
 const customerRepository = AppDataSource.getRepository(Customers);
@@ -384,6 +385,197 @@ export const updateBookingWithUserHandler = async (
     booking.desk.chairs = chairsWithDesk;
 
     const updatedBooking = await bookingRepository.save(booking);
+
+    let flexMessageBody = `{
+    "to": "${customer.line_liff_id}",
+    "messages": [
+        {
+            "type": "text",
+            "text": "นี่คือข้อมูล ที่นั่งของพี่ๆนะฮัฟ หากข้อมูลไม่ตรง กดที่ติดต่อเราได้เลยเพื่อแจ้ง admin นะฮัฟ"
+        },
+        {
+            "type": "flex",
+            "altText": "E-Ticket Comedu-Reunion",
+            "contents": {
+                "type": "bubble",
+                "hero": {
+                    "type": "image",
+                    "url": "https://media.discordapp.net/attachments/1086720620491964416/1097791381465989140/311658023_545422350922505_7010403205822614107_n.jpg?width=1980&height=1980",
+                    "align": "center",
+                    "gravity": "bottom",
+                    "size": "full",
+                    "aspectRatio": "20:13",
+                    "aspectMode": "fit"
+                },
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "spacing": "md",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "บัตรเข้าร่วมงาน E-Ticket",
+                            "weight": "bold",
+                            "size": "xl",
+                            "align": "center",
+                            "gravity": "center",
+                            "wrap": true,
+                            "contents": []
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "spacing": "sm",
+                            "margin": "lg",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "spacing": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "วันที่",
+                                            "size": "sm",
+                                            "color": "#AAAAAA",
+                                            "flex": 1,
+                                            "contents": []
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "22 เมษายน 2566",
+                                            "size": "sm",
+                                            "color": "#666666",
+                                            "flex": 4,
+                                            "wrap": true,
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "spacing": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "สถานที่",
+                                            "size": "sm",
+                                            "color": "#AAAAAA",
+                                            "flex": 1,
+                                            "contents": []
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "ชั้น 8 อาคาร 44 คณะครุศาสตร์ อุตสาหกรรม",
+                                            "size": "sm",
+                                            "color": "#666666",
+                                            "flex": 4,
+                                            "wrap": true,
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "spacing": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "โต๊ะ",
+                                            "size": "sm",
+                                            "color": "#AAAAAA",
+                                            "flex": 1,
+                                            "contents": []
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "${desk.label}",
+                                            "size": "sm",
+                                            "color": "#666666",
+                                            "flex": 4,
+                                            "wrap": true,
+                                            "contents": []
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "spacing": "sm",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "เก้าอี้",
+                                            "size": "sm",
+                                            "color": "#AAAAAA",
+                                            "flex": 1,
+                                            "contents": []
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "${updatedBooking.chairs_label}",
+                                            "size": "sm",
+                                            "color": "#666666",
+                                            "flex": 4,
+                                            "wrap": true,
+                                            "contents": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "margin": "xxl",
+                            "contents": [
+                                {
+                                    "type": "spacer"
+                                },
+                                {
+                                    "type": "image",
+                                    "url": "${updatedBooking.qrcode_image}",
+                                    "size": "4xl",
+                                    "aspectMode": "cover"
+                                },
+                                {
+                                    "type": "text",
+                                    "text": "สามารถยื่น QR code นี้ที่หน้างานได้เลยนะฮัฟ",
+                                    "size": "xs",
+                                    "color": "#AAAAAA",
+                                    "margin": "xxl",
+                                    "wrap": true,
+                                    "contents": []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}`;
+
+    const headers = {
+      Authorization:
+        "Bearer 2srfrgJMQ8XXBUyPC9qTGOjQKWZWkSCaQpfV1HBdecuW3j5BQY0XvVhgGEKpzbysZ0kh64p5HAB9s4q2abWHUex5/NsBoIGmqPO64QeYmSc16m6TfIBEeSKLaMiTn8tSWcd33lmz/1YKm1JHyP48ugdB04t89/1O/w1cDnyilFU=",
+      "Content-Type": "application/json",
+    };
+
+    axios
+      .post(`https://api.line.me/v2/bot/message/push`, flexMessageBody, {
+        headers,
+      })
+      .then((response) => {
+        // Handle successful response
+        console.log(response.data);
+      })
+      .catch((error) => {
+        // Handle error
+        console.error(error);
+      });
 
     res.status(200).json({
       status: "success",
