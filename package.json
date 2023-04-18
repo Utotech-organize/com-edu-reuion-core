@@ -5,6 +5,8 @@
   "type": "commonjs",
   "dependencies": {
     "@googleapis/docs": "^2.0.1",
+    "@types/axios": "^0.14.0",
+    "axios": "^1.3.5",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.1",
     "concurrently": "^7.6.0",
