@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/Tweed-tech/com-edu-reuion-core/compare/1.3.4...1.4.0) (2023-04-18)
+
+
+### Features
+
+* **line:** implement line oa rich menu and rich message ([9cce414](https://github.com/Tweed-tech/com-edu-reuion-core/commit/9cce41423b870c4124f68fc691452cac67dde320))
+
 ### [1.3.4](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.3.3...1.3.4) (2023-04-17)
 
 ### [1.3.3](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.3.2...1.3.3) (2023-04-17)
