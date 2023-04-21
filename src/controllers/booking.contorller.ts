@@ -17,6 +17,7 @@ import { Users } from "../entities/user.entity";
 import { qrcodeGenerator } from "../utils/service";
 import _ from "lodash";
 import axios from "axios";
+import { flexRegister } from "../utils/line_api_display";
 
 const bookingRepository = AppDataSource.getRepository(Bookings);
 const customerRepository = AppDataSource.getRepository(Customers);
@@ -311,6 +312,70 @@ export const getSingleBookingsHandler = async (req: Request, res: Response) => {
   }
 };
 
+export const getSingleBookingWithSlugTicketHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const booking_ticket = req.params.ticket;
+
+    const booking = await bookingRepository
+      .createQueryBuilder("bookings")
+      .select(selectBookingsColumn)
+      .where("bookings.slug = :slug", {
+        slug: booking_ticket,
+      })
+      .getRawOne();
+
+    if (!booking) {
+      return responseErrors(
+        res,
+        400,
+        "Bookings not found",
+        "cannot find bookings"
+      );
+    }
+
+    const customer = await customerRepository.findOneBy({
+      id: booking.customer,
+    });
+
+    if (!customer) {
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
+    }
+    booking.customer = customer;
+
+    const desk = await deskRepository.findOneBy({
+      id: booking.desk,
+    });
+    if (!desk) {
+      return responseErrors(res, 400, "Desk not found", "cannot find desk");
+    }
+    booking.desk = desk;
+
+    let chairs_id: any = booking.chairs_id.split(",");
+    const chairWithBooking = await getChairWithDesk(desk.id, chairs_id);
+    booking.desk.chairs = chairWithBooking;
+
+    res.status(200).json({
+      status: "success",
+      data: booking,
+    });
+  } catch (err: any) {
+    return responseErrors(
+      res,
+      400,
+      "Can't get single Booking with ticket",
+      err.message
+    );
+  }
+};
+
 // updateBookingWithUserHandler is Approve with user
 export const updateBookingWithUserHandler = async (
   req: Request,
@@ -388,181 +453,15 @@ export const updateBookingWithUserHandler = async (
 
     const updatedBooking = await bookingRepository.save(booking);
 
-    let flexMessageBody = `{
-    "to": "${customer.line_liff_id}",
-    "messages": [
-        {
-            "type": "text",
-            "text": "นี่คือข้อมูล ที่นั่งของพี่ๆนะฮัฟ หากข้อมูลไม่ตรง กดที่ติดต่อเราได้เลยเพื่อแจ้ง admin นะฮัฟ"
-        },
-        {
-            "type": "flex",
-            "altText": "E-Ticket Comedu-Reunion",
-            "contents": {
-                "type": "bubble",
-                "hero": {
-                    "type": "image",
-                    "url": "https://media.discordapp.net/attachments/1086720620491964416/1097791381465989140/311658023_545422350922505_7010403205822614107_n.jpg?width=1980&height=1980",
-                    "align": "center",
-                    "gravity": "bottom",
-                    "size": "full",
-                    "aspectRatio": "20:13",
-                    "aspectMode": "fit"
-                },
-                "body": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "spacing": "md",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": "บัตรเข้าร่วมงาน E-Ticket",
-                            "weight": "bold",
-                            "size": "xl",
-                            "align": "center",
-                            "gravity": "center",
-                            "wrap": true,
-                            "contents": []
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "spacing": "sm",
-                            "margin": "lg",
-                            "contents": [
-                                {
-                                    "type": "box",
-                                    "layout": "baseline",
-                                    "spacing": "sm",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "วันที่",
-                                            "size": "sm",
-                                            "color": "#AAAAAA",
-                                            "flex": 1,
-                                            "contents": []
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": "22 เมษายน 2566",
-                                            "size": "sm",
-                                            "color": "#666666",
-                                            "flex": 4,
-                                            "wrap": true,
-                                            "contents": []
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "baseline",
-                                    "spacing": "sm",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "สถานที่",
-                                            "size": "sm",
-                                            "color": "#AAAAAA",
-                                            "flex": 1,
-                                            "contents": []
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": "ชั้น 8 อาคาร 44 คณะครุศาสตร์ อุตสาหกรรม",
-                                            "size": "sm",
-                                            "color": "#666666",
-                                            "flex": 4,
-                                            "wrap": true,
-                                            "contents": []
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "baseline",
-                                    "spacing": "sm",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "โต๊ะ",
-                                            "size": "sm",
-                                            "color": "#AAAAAA",
-                                            "flex": 1,
-                                            "contents": []
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": "${desk.label}",
-                                            "size": "sm",
-                                            "color": "#666666",
-                                            "flex": 4,
-                                            "wrap": true,
-                                            "contents": []
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "box",
-                                    "layout": "baseline",
-                                    "spacing": "sm",
-                                    "contents": [
-                                        {
-                                            "type": "text",
-                                            "text": "เก้าอี้",
-                                            "size": "sm",
-                                            "color": "#AAAAAA",
-                                            "flex": 1,
-                                            "contents": []
-                                        },
-                                        {
-                                            "type": "text",
-                                            "text": "${updatedBooking.chairs_label}",
-                                            "size": "sm",
-                                            "color": "#666666",
-                                            "flex": 4,
-                                            "wrap": true,
-                                            "contents": []
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "type": "box",
-                            "layout": "vertical",
-                            "margin": "xxl",
-                            "contents": [
-                                {
-                                    "type": "spacer"
-                                },
-                                {
-                                    "type": "image",
-                                    "url": "${updatedBooking.qrcode_image}",
-                                    "size": "4xl",
-                                    "aspectMode": "cover"
-                                },
-                                {
-                                    "type": "text",
-                                    "text": "สามารถยื่น QR code นี้ที่หน้างานได้เลยนะฮัฟ",
-                                    "size": "xs",
-                                    "color": "#AAAAAA",
-                                    "margin": "xxl",
-                                    "wrap": true,
-                                    "contents": []
-                                }
-                            ]
-                        }
-                    ]
-                }
-            }
-        }
-    ]
-}`;
+    let flexMessageBody = flexRegister(
+      customer.line_liff_id,
+      desk.label,
+      updatedBooking.chairs_label,
+      updatedBooking.qrcode_image
+    );
 
     const headers = {
-      Authorization:
-        "Bearer 2srfrgJMQ8XXBUyPC9qTGOjQKWZWkSCaQpfV1HBdecuW3j5BQY0XvVhgGEKpzbysZ0kh64p5HAB9s4q2abWHUex5/NsBoIGmqPO64QeYmSc16m6TfIBEeSKLaMiTn8tSWcd33lmz/1YKm1JHyP48ugdB04t89/1O/w1cDnyilFU=",
+      Authorization: "Bearer " + process.env.LINE_ACCESS_TOKEN,
       "Content-Type": "application/json",
     };
 
@@ -570,11 +469,11 @@ export const updateBookingWithUserHandler = async (
       .post(`https://api.line.me/v2/bot/message/push`, flexMessageBody, {
         headers,
       })
-      .then((response) => {
+      .then((response: any) => {
         // Handle successful response
         console.log(response.data);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         // Handle error
         console.error(error);
       });
