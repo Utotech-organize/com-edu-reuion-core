@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Desks } from "../entities/desk.entity";
 
 import { AppDataSource } from "../utils/data-source";
-import { responseErrors } from "../utils/common";
+import { responseErrors, statusAvailable } from "../utils/common";
 import { Customers } from "../entities/customer.entity";
 import axios from "axios";
 
@@ -240,6 +240,37 @@ export const updateCustomerHandler = async (req: Request, res: Response) => {
     customer.email = input.email;
     customer.status = input.status;
     customer.line_photo_url = input.line_photo_url;
+
+    const updatedCustomer = await customerRepository.save(customer);
+
+    res.status(200).json({
+      status: "success",
+      data: updatedCustomer,
+    });
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't update your Customer", err.message);
+  }
+};
+
+export const changeCustomerStatusHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const customer = await customerRepository.findOneBy({
+      id: req.params.id as any,
+    });
+
+    if (!customer) {
+      return responseErrors(
+        res,
+        400,
+        "Customer not found",
+        "cannot find customer"
+      );
+    }
+
+    customer.status = statusAvailable;
 
     const updatedCustomer = await customerRepository.save(customer);
 
