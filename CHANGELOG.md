@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.1](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.5.0...1.5.1) (2023-04-22)
+
+
+### Bug Fixes
+
+* **customer:** added approve api ([6014a88](https://github.com/Tweed-tech/ComEduReuion-core/commit/6014a882bb074507906b05595e57d75258e5156f))
+* **get-all:** customer remove auth ([4eaabfc](https://github.com/Tweed-tech/ComEduReuion-core/commit/4eaabfcb77212e44f89a96f00b3c5e2ed9305817))
+
 ## [1.5.0](https://github.com/Tweed-tech/ComEduReuion-core/compare/1.4.0...1.5.0) (2023-04-21)
 
 
