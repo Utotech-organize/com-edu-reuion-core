@@ -256,6 +256,7 @@ export const updateCustomerHandler = async (req: Request, res: Response) => {
 };
 
 export const changeCustomerStatusHandler = async (
+  // Capture to change status
   req: Request,
   res: Response
 ) => {

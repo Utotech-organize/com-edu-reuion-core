@@ -400,6 +400,49 @@ export const getSingleBookingWithSlugTicketHandler = async (
   }
 };
 
+export const captureImageAndSendMessage = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    //FIXME
+    // const richMenuId = "richmenu-d6e563d63772fb6d042e655561bc4182";
+    // const headers = {
+    //   Authorization:
+    //     "Bearer 2srfrgJMQ8XXBUyPC9qTGOjQKWZWkSCaQpfV1HBdecuW3j5BQY0XvVhgGEKpzbysZ0kh64p5HAB9s4q2abWHUex5/NsBoIGmqPO64QeYmSc16m6TfIBEeSKLaMiTn8tSWcd33lmz/1YKm1JHyP48ugdB04t89/1O/w1cDnyilFU=",
+    // };
+
+    // await axios
+    //   .post(
+    //     `https://api.line.me/v2/bot/user/${customer.line_liff_id}/richmenu/${richMenuId}`,
+    //     null,
+    //     {
+    //       headers,
+    //     }
+    //   )
+    //   .then((response) => {
+    //     // Handle successful response
+    //     console.log(response.data);
+    //   })
+    //   .catch((error) => {
+    //     // Handle error
+    //     console.error(error);
+    //   });
+
+    res.status(200).json({
+      status: "success",
+      // data: booking,
+    });
+  } catch (err: any) {
+    return responseErrors(
+      res,
+      400,
+      "Can't get single Booking with ticket",
+      err.message
+    );
+  }
+};
+
 // updateBookingWithUserHandler is Approve with user
 export const updateBookingWithUserHandler = async (
   req: Request,

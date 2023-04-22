@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post("/new", createCustomerHandler);
 router.route("/liff").get(getCustomerByLiffIDHandler);
-router.route("/approve").put(changeCustomerStatusHandler);
+router.route("/:id/approve").put(changeCustomerStatusHandler);
 router.route("/edit/:id").put(updateCustomerHandler);
 router.route("/:id").get(getCustomerHandler);
 router.route("/").get(getAllCustomersHandler);
