@@ -193,14 +193,19 @@ export const enterMessage = (replyToken: any) => {
   return message;
 };
 
-export const captureMessage = (replyToken: any) => {
+export const snapshotMessage = (replyToken: any, image: any) => {
   let message = `{
     "replyToken": "${replyToken}",
     "messages":[
-        {
+         {
             "type":"text",
             "text":"เย่ ตอนนี้ท่านอยู่ในงานแล้ว เชิญพี่ ๆ ไปนั่งที่โต๊ะได้เลยครับ รีบบอกเพื่อน ๆ ให้ตามมาเร็ว!"
-        }
+        },
+       {
+        "type": "image",
+        "originalContentUrl": "${image}",
+        "previewImageUrl": "${image}"
+       }
     ]
 }`;
 
