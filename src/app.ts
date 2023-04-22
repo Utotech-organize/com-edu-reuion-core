@@ -23,6 +23,7 @@ import { initDeskAndChairs } from "./utils/mock-default-data";
 import { Desks } from "./entities/desk.entity";
 import { createDefaultUser } from "./controllers/user.controller";
 import { createDefaultSettings } from "./controllers/setting.controller";
+import { devioController } from "./utils/line_api_devio";
 
 const deskRepository = AppDataSource.getRepository(Desks);
 
@@ -75,6 +76,12 @@ AppDataSource.initialize()
     if (desks.length === 0) {
       initDeskAndChairs();
     }
+
+    // get web hook from devio
+    app.post("/api/webhook", (req, res) => {
+      devioController(req, res); // Call your action on the request here
+      res.status(200).end(); // Responding is important
+    });
 
     // HEALTH CHECKER
     app.get("/api/healthChecker", async (_, res: Response) => {

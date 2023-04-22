@@ -178,3 +178,31 @@ export const flexRegister = (
 
   return flexMessageBody;
 };
+
+export const enterMessage = (replyToken: any) => {
+  let message = `{
+    "replyToken": "${replyToken}",
+    "messages":[
+        {
+            "type":"text",
+            "text":"ใกล้ถึงแล้ว ตอนนี้งานคืนสู่เหย้าอยู่ที่อาคาร 44 ชั้น 8 สามารถขึ้นลิฟท์มาได้เลยครับ อย่าลืมเปิด QR Code ให้น้อง ๆ ทีมต้อนรับหน้างานด้วยคร๊าบ"
+        }
+    ]
+}`;
+
+  return message;
+};
+
+export const captureMessage = (replyToken: any) => {
+  let message = `{
+    "replyToken": "${replyToken}",
+    "messages":[
+        {
+            "type":"text",
+            "text":"เย่ ตอนนี้ท่านอยู่ในงานแล้ว เชิญพี่ ๆ ไปนั่งที่โต๊ะได้เลยครับ รีบบอกเพื่อน ๆ ให้ตามมาเร็ว!"
+        }
+    ]
+}`;
+
+  return message;
+};
