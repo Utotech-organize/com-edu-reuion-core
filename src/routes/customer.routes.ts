@@ -18,12 +18,12 @@ router.route("/liff").get(getCustomerByLiffIDHandler);
 router.route("/approve").put(changeCustomerStatusHandler);
 router.route("/edit/:id").put(updateCustomerHandler);
 router.route("/:id").get(getCustomerHandler);
+router.route("/").get(getAllCustomersHandler);
 
 // FIXME enable when frontend send bearer token
 router.use(verifyJwt);
 
 // Register user
-router.route("/").get(getAllCustomersHandler);
 router.route("/delete/:id").delete(deleteCustomerHandler);
 
 export default router;

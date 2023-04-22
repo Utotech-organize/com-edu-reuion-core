@@ -5,6 +5,9 @@ import { Orders } from "../entities/order.entity";
 import { Customers } from "../entities/customer.entity";
 import { Products } from "../entities/product.entity";
 import { OrdersDetails } from "../entities/order_details.entity";
+import axios from "axios";
+
+const urlNotify = "https://notify-api.line.me/api/notify";
 
 const orderRepository = AppDataSource.getRepository(Orders);
 const selectOrderColumn = [
@@ -103,7 +106,7 @@ export const createOrderHandler = async (req: Request, res: Response) => {
     });
 
     let newOrder;
-    let newOrderDetails;
+    let newOrderDetails: any;
 
     await AppDataSource.transaction(async (transactionalEntityManager: any) => {
       const orderRepository = transactionalEntityManager.getRepository(Orders);
@@ -112,6 +115,51 @@ export const createOrderHandler = async (req: Request, res: Response) => {
       newOrder = await orderRepository.save(order);
       newOrderDetails = await orderDetailRepository.save(orderDetails);
     });
+
+    const accessToken = process.env.LINE_NOTIFY_TOKEN; //FIXME GET FROM SETTING
+
+    const headers = {
+      Authorization: "Bearer " + accessToken,
+      "Content-Type": "application/x-www-form-urlencoded",
+    };
+
+    let resProducts = [];
+
+    for (let od of newOrderDetails) {
+      let pd =
+        od.product.label +
+        " - " +
+        od.product.price +
+        "฿" +
+        " x " +
+        od.quantity +
+        "\n";
+
+      resProducts.push(pd);
+    }
+
+    let message =
+      `สั่งออร์เดอร์ !!\nโต๊ะ ${order.desk_label}\nโดย: ${customer.first_name} ${customer.last_name}\nชื่อไลน์: ${customer.line_display_name}\nรายละเอียด:\n` +
+      resProducts +
+      "\n" +
+      "ยอดรวม: " +
+      order.total_price +
+      "฿\n" +
+      "*หมายเหตุ: " +
+      order.remark;
+
+    await axios
+      .post(urlNotify, `message=${message}`, {
+        headers,
+      })
+      .then((response: any) => {
+        // Handle successful response
+        console.log(response.data);
+      })
+      .catch((error: any) => {
+        // Handle error
+        console.error(error);
+      });
 
     try {
       res.status(200).json({
@@ -129,6 +177,25 @@ export const createOrderHandler = async (req: Request, res: Response) => {
     }
   } catch (err: any) {
     return responseErrors(res, 400, "Can't create Order", err.message);
+  }
+};
+
+export const callStaffHandler = async (req: Request, res: Response) => {
+  try {
+    const orders = await orderRepository
+      .createQueryBuilder("orders")
+      .select(selectOrderColumn)
+      // .where("orders.deleted_at is null")
+      .orderBy("orders.ordering", "ASC")
+      .getRawMany();
+
+    res.status(200).json({
+      status: "success",
+      results: orders.length,
+      data: orders,
+    });
+  } catch (err: any) {
+    return responseErrors(res, 400, "Can't get all Order", err.message);
   }
 };
 
