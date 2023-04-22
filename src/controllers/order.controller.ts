@@ -138,6 +138,11 @@ export const createOrderHandler = async (req: Request, res: Response) => {
       resProducts.push(pd);
     }
 
+    let remark: any = "-";
+    if (order.remark !== null) {
+      remark = order.remark;
+    }
+
     let message =
       `สั่งออร์เดอร์ !!\nโต๊ะ ${order.desk_label}\nโดย: ${customer.first_name} ${customer.last_name}\nชื่อไลน์: ${customer.line_display_name}\nรายละเอียด:\n` +
       resProducts +
@@ -146,7 +151,7 @@ export const createOrderHandler = async (req: Request, res: Response) => {
       order.total_price +
       "฿\n" +
       "*หมายเหตุ: " +
-      order.remark;
+      remark;
 
     await axios
       .post(urlNotify, `message=${message}`, {
